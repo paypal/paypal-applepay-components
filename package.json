@@ -1,0 +1,86 @@
+{
+  "name": "@paypal/applepay",
+  "version": "1.2.2",
+  "description": "A PayPal Legal Messaging Library to display Legal Content on Merchant Websites",
+  "main": "index.js",
+  "scripts": {
+    "flow-typed": "flow-typed install",
+    "flow": "flow",
+    "flow:build": "flow gen-flow-files ./src/index.js --out-dir ./dist/module",
+    "lint": "eslint src/ test/ *.js",
+    "test": "npm run lint && npm run flow && npm run karma",
+    "karma": "cross-env NODE_ENV=test babel-node $(npm bin)/karma start",
+    "babel": "babel src/ --out-dir dist/module",
+    "webpack": "babel-node --plugins=transform-es2015-modules-commonjs ./node_modules/.bin/webpack --progress",
+    "build": "npm run test && npm run babel && npm run webpack",
+    "prepare": "husky install",
+    "release": "standard-version",
+    "postrelease": "git push && git push --follow-tags && npm publish"
+  },
+  "standard-version": {
+    "types": [
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "chore",
+        "hidden": false
+      },
+      {
+        "type": "docs",
+        "hidden": false
+      },
+      {
+        "type": "style",
+        "hidden": false
+      },
+      {
+        "type": "refactor",
+        "hidden": false
+      },
+      {
+        "type": "perf",
+        "hidden": false
+      },
+      {
+        "type": "test",
+        "hidden": false
+      },
+      {
+        "type": "ci",
+        "hidden": true
+      }
+    ]
+  },
+  "files": [
+    "src",
+    "__sdk__.js",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paypal/paypal-legal-components.git"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/paypal/paypal-legal-components/issues"
+  },
+  "homepage": "https://github.com/paypal/paypal-legal-components#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@krakenjs/grumbler-scripts": "^6",
+    "flow-bin": "0.155.0",
+    "husky": "^7.0.4",
+    "mocha": "^4",
+    "standard-version": "^9.3.2"
+  },
+  "dependencies": {
+    "@paypal/sdk-client": "^4.0.166"
+  }
+}
