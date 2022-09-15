@@ -205,8 +205,6 @@ async function approvePayment({ orderID, payment }) {
 
 
 export function Applepay() : Object {
-    const merchantID = getMerchantID();
-    const clientID = getClientID();
 
     return {
       createOrder,
