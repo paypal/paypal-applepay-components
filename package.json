@@ -7,8 +7,9 @@
     "flow-typed": "flow-typed install",
     "flow": "flow",
     "flow:build": "flow gen-flow-files ./src/index.js --out-dir ./dist/module",
-    "lint": "eslint src/ test/ *.js",
-    "test": "npm run lint && npm run flow && npm run karma",
+    "test:unit": "jest src/ --collectCoverage --collectCoverageFrom='src/' --testPathIgnorePatterns=/fixtures/ --no-cache --runInBand",
+    "lint": "eslint --fix src/ test/ *.js",
+    "test": "npm run lint && npm run flow && npm run test:unit",
     "karma": "cross-env NODE_ENV=test babel-node $(npm bin)/karma start",
     "babel": "babel src/ --out-dir dist/module",
     "webpack": "babel-node --plugins=transform-es2015-modules-commonjs ./node_modules/.bin/webpack --progress",
@@ -16,6 +17,16 @@
     "prepare": "husky install",
     "release": "standard-version",
     "postrelease": "git push && git push --follow-tags && npm publish"
+  },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "restoreMocks": true,
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@paypal|@krakenjs|get-browser-fingerprint))"
+    ],
+    "globals": {
+      "__DEBUG__": true
+    }
   },
   "standard-version": {
     "types": [
@@ -72,11 +83,15 @@
   },
   "homepage": "https://github.com/paypal/paypal-legal-components#readme",
   "devDependencies": {
+    "@babel/core": "^7.19.1",
+    "@babel/preset-env": "^7.19.1",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "@krakenjs/grumbler-scripts": "^6",
+    "babel-jest": "^29.0.3",
     "flow-bin": "0.155.0",
     "husky": "^7.0.4",
+    "jest": "^29.0.3",
     "mocha": "^4",
     "standard-version": "^9.3.2"
   },

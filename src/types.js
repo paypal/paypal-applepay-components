@@ -1,30 +1,22 @@
 /* @flow */
-type FundingSource = "PayUponInvoice" | "boletobancario";
-type ErrorCode = "PAYMENT_SOURCE_INFO_CANNOT_BE_VERIFIED" | "PAYMENT_SOURCE_DECLINED_BY_PROCESSOR";
 
-export type ContentConfig = {|
-    legalLocale : string,
-    buyerCountry : string,
-    fundingSource : FundingSource,
-    errorCode? : ErrorCode
+// type ErrorCode = "PAYMENT_SOURCE_INFO_CANNOT_BE_VERIFIED" | "PAYMENT_SOURCE_DECLINED_BY_PROCESSOR";
+
+export type ConfigResponse = {|
+    isApplePayEligible : boolean,
+    countryCode : string,
+    currencyCode : string,
+    merchantCapabilities : $ReadOnlyArray<string>,
+    supportedNetworks : $ReadOnlyArray<string>
+  |};
+
+export type CreateOrderResponse = {|
+    id : string
 |};
 
-export type ApplepayConfigInput = {|
-    fundingSource : FundingSource,
-    errorCode? : ErrorCode
-|};
-
-export type LegalServerConfigType = {|
-    assetsUrl : string
-|};
-
-
-export type LegalGlobalType = {|
-    serverConfig : LegalServerConfigType
-|};
-
-
-declare var __legal__ : LegalGlobalType;
+export type ApplePaySession = {|
+    session : string
+  |};
 
 export type ApplePayPaymentContact = {|
     phoneNumber? : string,
@@ -41,4 +33,44 @@ export type ApplePayPaymentContact = {|
     administrativeArea? : string,
     country? : string,
     countryCode? : string
+|};
+
+export type ApplePayPaymentMethodType = 'debit' | 'credit' | 'prepaid' | 'store';
+
+export type ApplePayPaymentPassActivationState = 'activated' | 'requiresActivation' | 'activating' | 'suspended' | 'deactivated';
+
+
+export type ApplePayPaymentPass = {|
+  primaryAccountIdentifier : string,
+  primaryAccountNumberSuffix : string,
+  deviceAccountIdentifier? : string,
+  deviceAccountNumberSuffic? : string,
+  activationState : ApplePayPaymentPassActivationState
+|};
+
+// https://developer.apple.com/documentation/apple_pay_on_the_web/applepaypaymentmethod
+export type ApplePayPaymentMethod = {|
+  displayName? : string,
+  network? : string,
+  type? : ApplePayPaymentMethodType,
+  paymentPass? : ApplePayPaymentPass,
+  billingContact? : ApplePayPaymentContact
+|};
+
+export type ApplePayPaymentToken = {|
+  paymentMethod : ApplePayPaymentMethod,
+  transactionIdentifier? : string,
+  paymentData? : Object
+|};
+
+
+export type ApplePayPayment = {|
+  token : ApplePayPaymentToken,
+  billingContact? : ApplePayPaymentContact,
+  shippingContact? : ApplePayPaymentContact
+|};
+
+export type ApproveParams = {|
+  orderID : string,
+  payment : ApplePayPayment
 |};
