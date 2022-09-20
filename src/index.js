@@ -1,4 +1,4 @@
 /* @flow */
 
-export * from './component';
+export * from './applepay';
 export * from './util';

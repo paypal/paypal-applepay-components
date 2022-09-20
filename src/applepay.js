@@ -4,53 +4,21 @@ import {
     getClientID,
     getMerchantID,
     getLogger,
-    getEnv,
-    getDefaultStageHost,
+    // getEnv,
+    // getDefaultStageHost,
     getPayPalAPIDomain,
-    getCorrelationID
+    // getCorrelationID
+    getBuyerCountry
 } from '@paypal/sdk-client/src';
-import { stringifyError } from '@krakenjs/belter/src';
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
 import type { ConfigResponse, ApplePaySession, ApproveParams, CreateOrderResponse } from './types';
+import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_HEADERS } from './constants';
 
-const DEFAULT_HEADERS = {
-    'Content-Type': 'application/json',
-    'Accept':         'application/json'
-};
 
-export const FPTI_TRANSITION = {
-    APPLEPAY_EVENT:                                     ('applepay_event' : 'applepay_event'),
-    APPLEPAY_FLOW_ERROR:                                ('applepay_flow_error' : 'applepay_flow_error'),
-    APPLEPAY_ON_CLICK_INVALID:                          ('applepay_onclick_invalid' : 'applepay_onclick_invalid'),
-    APPLEPAY_MERCHANT_VALIDATION_COMPLETION_ERROR:      ('applepay_merchant_validation_completion_error' : 'applepay_merchant_validation_completion_error'),
-    APPLEPAY_MERCHANT_VALIDATION_ERROR:                 ('applepay_merchant_validation_error' : 'applepay_merchant_validation_error'),
-    APPLEPAY_CREATE_ORDER_ERROR:                        ('applepay_create_order_error' : 'applepay_create_order_error'),
-    APPLEPAY_GET_DETAILS_ERROR:                         ('applepay_get_details_error' : 'applepay_get_details_error'),
-    APPLEPAY_PAYMENT_ERROR:                             ('applepay_payment_error' : 'applepay_payment_error'),
-    APPLEPAY_CONFIG_ERROR:                             ('applepay_config_error' : 'applepay_config_error')
-};
-
-export const FPTI_CUSTOM_KEY = {
-    ERR_DESC:                   ('int_error_desc' : 'int_error_desc'),
-    EXPERIENCE:                 ('experience' : 'experience'),
-    HONEY_DEVICE_ID:            ('honey_device_id' : 'honey_device_id'),
-    HONEY_SESSION_ID:           ('honey_session_id' : 'honey_session_id'),
-    INTEGRATION_ISSUE:          ('integration_issue' : 'integration_issue'),
-    INTEGRATION_WHITELIST:      ('whitelist' : 'whitelist'),
-    INFO_MSG:                   ('info_msg' : 'info_msg'),
-    PMT_TOKEN:                  ('pmt_token' : 'pmt_token'),
-    TRANSITION_TYPE:            ('transition_type' : 'transition_type'),
-    TRANSITION_REASON:          ('transition_reason' : 'transition_reason'),
-    SHIPPING_CALLBACK_PASSED:   ('shipping_callback_passed' : 'shipping_callback_passed'),
-    SHIPPING_CALLBACK_INVOKED:  ('shipping_callback_invoked' : 'shipping_callback_invoked'),
-    DESKTOP_EXIT_SURVEY_REASON: ('desktop_exit_survey_reason' : 'desktop_exit_survey_reason')
-};
-
-function logApplePayEvent(event : string, payload : string) {
+function logApplePayEvent(event : string, payload : Object) {
     const data = payload || {};
 
-    // $FlowFixMe
     getLogger().info(`${ FPTI_TRANSITION.APPLEPAY_EVENT }_${ event }`, data)
         .track({
             [FPTI_KEY.TRANSITION]:      `${ FPTI_TRANSITION.APPLEPAY_EVENT }_${ event }`,
@@ -59,7 +27,15 @@ function logApplePayEvent(event : string, payload : string) {
         .flush();
 }
 
-async function createOrder(payload) : Promise<CreateOrderResponse> {
+type OrderPayload = {|
+    intent : string,
+    purchase_units : $ReadOnlyArray<{|
+      amount : {| currency_code : string, value : string |},
+      payee : {| merchant_id : $ReadOnlyArray<string> |}
+    |}>
+|};
+
+async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse> {
     const basicAuth = btoa(`${ getClientID() }:`);
 
     const accessToken = await fetch(
@@ -128,33 +104,48 @@ function config() : Promise<ConfigResponse> {
                     }
                   }`,
                 variables: {
-                    buyerCountry: 'US',
+                    buyerCountry: getBuyerCountry(),
                     clientId:     getClientID(),
                     merchantId:   getMerchantID()
                 }
             })
         }
     )
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error('GetApplepayConfig response not ok');
+            }
+            return res;
+        })
         .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
-                const errorMessage = errors[0]?.message;
-
-                getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
-                    .track({
-                        [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR,
-                        [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ errorMessage }) }`
-                    })
-                    .flush();
-                throw new Error(errors[0].message);
+                const message = errors[0]?.message ?? JSON.stringify(errors[0]);
+                throw new Error(message);
             }
+            
             return data.applepayConfig;
+        })
+        .catch((err) => {
+            getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
+                .track({
+                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR,
+                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                })
+                .flush();
+
+            throw err;
         });
 }
 
 let orderID_ : ?string;
 
-async function validateMerchant({ validationUrl }) : Promise<ApplePaySession> {
+type ValidateMerchantParams = {|
+    validationUrl : string
+|};
+
+async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
+    logApplePayEvent('validatemerchant', { validationUrl });
 
     const { id } = await createOrder({
         intent:         'CAPTURE',
@@ -203,21 +194,22 @@ async function validateMerchant({ validationUrl }) : Promise<ApplePaySession> {
                     url:            validationUrl,
                     clientID:       getClientID(),
                     orderID:        id,
-                    merchantDomain: window.location.href // "sandbox-applepay-paypal-js-sdk.herokuapp.com",
+                    merchantDomain: window.location.href
                 }
             })
         }
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error('GetApplePayMerchantSession response error');
+                throw new Error('GetApplePayMerchantSession response not ok');
             }
             return res;
         })
         .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
-                const message = errors[0].message || JSON.stringify(errors[0]);
+                const message = errors[0]?.message ?? JSON.stringify(errors[0]);
+
                 throw new Error(message);
             }
             return data;
@@ -227,15 +219,19 @@ async function validateMerchant({ validationUrl }) : Promise<ApplePaySession> {
             return JSON.parse(payload);
         })
         .catch((err) => {
-            getLogger().error('GetApplepayConfig_error', {
-                err: stringifyError(err)
-            });
+            getLogger().error(FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR)
+                .track({
+                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR,
+                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                })
+                .flush();
             throw err;
         });
 }
 
 
 function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
+    logApplePayEvent('paymentauthorized');
 
     return fetch(
         `{ ${ getPayPalAPIDomain() }/graphql?ApproveApplePayPayment`,
@@ -282,20 +278,31 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
         .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
-                const message = errors[0].message || JSON.stringify(errors[0]);
+                const message = errors[0]?.message ?? JSON.stringify(errors[0]);
                 throw new Error(message);
             }
             return data;
         })
         .catch((err) => {
-            getLogger().error('ApproveApplePayPayment_error', {
-                err: stringifyError(err)
-            });
+            getLogger().error(FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR)
+                .track({
+                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR,
+                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                })
+                .flush();
+
             throw err;
         });
 }
 
-export function Applepay() : Object {
+type ApplepayType = {|
+    createOrder(OrderPayload) : Promise<CreateOrderResponse>,
+    config() : Promise<ConfigResponse>,
+    validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession>,
+    approvePayment(ApproveParams) : Promise<void>
+|};
+
+export function Applepay() : ApplepayType {
 
     return {
         createOrder,
