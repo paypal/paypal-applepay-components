@@ -1,8 +1,14 @@
 /* @flow */
 
-export const DEFAULT_HEADERS = {
+export const DEFAULT_API_HEADERS = {
     'Content-Type': 'application/json',
-    'Accept':         'application/json'
+    'Accept':       'application/json'
+};
+
+export const DEFAULT_GQL_HEADERS = {
+    'Content-Type': 'application/json',
+    'Accept':       'application/json',
+    'origin':       (process.env.NODE_ENV === 'test') && 'https://www.mypaypal.com'
 };
 
 export const FPTI_TRANSITION = {

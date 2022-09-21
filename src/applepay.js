@@ -4,42 +4,20 @@ import {
     getClientID,
     getMerchantID,
     getLogger,
-    // getEnv,
-    // getDefaultStageHost,
     getPayPalAPIDomain,
     // getCorrelationID
     getBuyerCountry
 } from '@paypal/sdk-client/src';
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
-import type { ConfigResponse, ApplePaySession, ApproveParams, CreateOrderResponse } from './types';
-import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_HEADERS } from './constants';
-
-
-function logApplePayEvent(event : string, payload : Object) {
-    const data = payload || {};
-
-    getLogger().info(`${ FPTI_TRANSITION.APPLEPAY_EVENT }_${ event }`, data)
-        .track({
-            [FPTI_KEY.TRANSITION]:      `${ FPTI_TRANSITION.APPLEPAY_EVENT }_${ event }`,
-            [FPTI_CUSTOM_KEY.INFO_MSG]: JSON.stringify(data)
-        })
-        .flush();
-}
-
-type OrderPayload = {|
-    intent : string,
-    purchase_units : $ReadOnlyArray<{|
-      amount : {| currency_code : string, value : string |},
-      payee : {| merchant_id : $ReadOnlyArray<string> |}
-    |}>
-|};
+import type { ConfigResponse, ApplePaySession, ApproveParams, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType } from './types';
+import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
+import { logApplePayEvent } from './logging';
 
 async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse> {
     const basicAuth = btoa(`${ getClientID() }:`);
 
     const accessToken = await fetch(
-    //   "https://api.sandbox.paypal.com/v1/oauth2/token",
         `${ getPayPalAPIDomain() }/v1/oauth2/token`,
         {
             method:       'POST',
@@ -58,25 +36,23 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
         {
             method:       'POST',
             headers:      {
-                ...DEFAULT_HEADERS,
+                ...DEFAULT_API_HEADERS,
                 'Authorization':  `Bearer ${ accessToken }`
             },
             body: JSON.stringify(payload)
         }
     );
-    const { id } = await res.json();
+    const { id, status } = await res.json();
 
     return {
-        id
+        id,
+        status
     };
 }
 
 function config() : Promise<ConfigResponse> {
-    // alert(getDefaultStageHost());
-    //  alert(getEnv());
-    // console.log(getEnv());
-    // console.log(getMerchantID());
-    // console.log(getPayPalAPIDomain());
+
+    // console.log( `${ getPayPalAPIDomain() }/graphql?GetApplepayConfig`)
 
     return fetch(
     //  "https://cors-anywhere.herokuapp.com/https://www.sandbox.paypal.com/graphql?GetApplepayConfig",
@@ -85,9 +61,9 @@ function config() : Promise<ConfigResponse> {
             method:       'POST',
             credentials: 'include',
             headers:      {
-                ...DEFAULT_HEADERS
+                ...DEFAULT_GQL_HEADERS
             },
-            body: JSON.stringify({
+            body:        JSON.stringify({
                 query: `
                   query GetApplepayConfig(
                     $buyerCountry: CountryCodes!
@@ -113,7 +89,7 @@ function config() : Promise<ConfigResponse> {
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error('GetApplepayConfig response not ok');
+                throw new Error(`GetApplepayConfig response status ${ res.status }`);
             }
             return res;
         })
@@ -138,11 +114,6 @@ function config() : Promise<ConfigResponse> {
         });
 }
 
-let orderID_ : ?string;
-
-type ValidateMerchantParams = {|
-    validationUrl : string
-|};
 
 async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
     logApplePayEvent('validatemerchant', { validationUrl });
@@ -156,13 +127,11 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
                     value:         '1.00'
                 },
                 payee: {
-                    merchant_id: getMerchantID()
+                    merchant_id: getMerchantID()[0]
                 }
             }
         ]
     });
-
-    orderID_ = id;
 
     return fetch(
     // "https://cors-anywhere.herokuapp.com/https://www.sandbox.paypal.com/graphql?GetApplepayConfig",v
@@ -171,7 +140,7 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
             credentials: 'include',
             method:       'POST',
             headers:      {
-                ...DEFAULT_HEADERS
+                ...DEFAULT_GQL_HEADERS
             },
             body: JSON.stringify({
                 query: `
@@ -201,7 +170,7 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error('GetApplePayMerchantSession response not ok');
+                throw new Error(`GetApplePayMerchantSession response status ${ res.status }`);
             }
             return res;
         })
@@ -240,7 +209,7 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
             credentials: 'include',
             method:       'POST',
             headers:      {
-                ...DEFAULT_HEADERS
+                ...DEFAULT_GQL_HEADERS
             },
             body: JSON.stringify({
                 query: `
@@ -271,7 +240,7 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error('ApproveApplePayPayment response error');
+                throw new Error(`ApproveApplePayPayment response status ${ res.status }`);
             }
             return res;
         })
@@ -294,13 +263,6 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
             throw err;
         });
 }
-
-type ApplepayType = {|
-    createOrder(OrderPayload) : Promise<CreateOrderResponse>,
-    config() : Promise<ConfigResponse>,
-    validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession>,
-    approvePayment(ApproveParams) : Promise<void>
-|};
 
 export function Applepay() : ApplepayType {
 

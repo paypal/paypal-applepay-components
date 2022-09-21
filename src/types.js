@@ -2,6 +2,15 @@
 
 // type ErrorCode = "PAYMENT_SOURCE_INFO_CANNOT_BE_VERIFIED" | "PAYMENT_SOURCE_DECLINED_BY_PROCESSOR";
 
+
+export type OrderPayload = {|
+  intent : string,
+  purchase_units : $ReadOnlyArray<{|
+    amount : {| currency_code : string, value : string |},
+    payee : {| merchant_id : $ReadOnlyArray<string> |}
+  |}>
+|};
+
 export type ConfigResponse = {|
     isApplePayEligible : boolean,
     countryCode : string,
@@ -11,11 +20,22 @@ export type ConfigResponse = {|
   |};
 
 export type CreateOrderResponse = {|
-    id : string
+    id : string,
+    status : string
 |};
 
 export type ApplePaySession = {|
-    session : string
+  displayName : string,
+  domainName : string,
+  epochTimestamp : number,
+  expiresAt : number,
+  merchantIdentifier : string,
+  merchantSessionIdentifier : string,
+  nonce : string,
+  operationalAnalyticsIdentifier : string,
+  pspId : string,
+  retries : number,
+  signature : string
   |};
 
 export type ApplePayPaymentContact = {|
@@ -73,4 +93,15 @@ export type ApplePayPayment = {|
 export type ApproveParams = {|
   orderID : string,
   payment : ApplePayPayment
+|};
+
+export type ValidateMerchantParams = {|
+  validationUrl : string
+|};
+
+export type ApplepayType = {|
+  createOrder(OrderPayload) : Promise<CreateOrderResponse>,
+  config() : Promise<ConfigResponse>,
+  validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession>,
+  approvePayment(ApproveParams) : Promise<void>
 |};
