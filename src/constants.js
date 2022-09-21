@@ -6,15 +6,19 @@ export const DEFAULT_API_HEADERS = {
 };
 
 type Headers = {|
+    'x-app-name' : string,
     'Content-Type' : string,
     'Accept' : string,
-    'origin' : string
+    'origin' : string,
+    'prefer' : string
 |};
 
 export const DEFAULT_GQL_HEADERS : Headers = {
+    'x-app-name':   'sdk-applepay',
     'Content-Type': 'application/json',
     'Accept':       'application/json',
-    'origin':       (process.env.NODE_ENV === 'test') ? 'https://www.mypaypal.com' : window.location
+    'origin':       (process.env.NODE_ENV === 'test') ? 'https://www.mypaypal.com' : window.location,
+    'prefer':       'return=representation'
 };
 
 export const FPTI_TRANSITION = {

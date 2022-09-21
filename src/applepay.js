@@ -62,7 +62,7 @@ function config() : Promise<ConfigResponse> {
             body:        JSON.stringify({
                 query: `
                   query GetApplepayConfig(
-                    $buyerCountry: CountryCodes!
+                    $buyerCountry: CountryCodes
                     $clientId: String!
                     $merchantId: [String]!
                   ) {
@@ -72,7 +72,9 @@ function config() : Promise<ConfigResponse> {
                       merchantId: $merchantId
                     ) {
                       merchantCountry,
-                      supportedNetworks
+                      supportedNetworks,
+                      isEligible,
+                      merchantCapabilities
                     }
                   }`,
                 variables: {
@@ -87,9 +89,8 @@ function config() : Promise<ConfigResponse> {
             if (!res.ok) {
                 throw new Error(`GetApplepayConfig response status ${ res.status }`);
             }
-            return res;
+            return res.json();
         })
-        .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
                 const message = errors[0]?.message ?? JSON.stringify(errors[0]);
@@ -167,9 +168,8 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
             if (!res.ok) {
                 throw new Error(`GetApplePayMerchantSession response status ${ res.status }`);
             }
-            return res;
+            return res.json();
         })
-        .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
                 const message = errors[0]?.message ?? JSON.stringify(errors[0]);
@@ -236,9 +236,8 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
             if (!res.ok) {
                 throw new Error(`ApproveApplePayPayment response status ${ res.status }`);
             }
-            return res;
+            return res.json();
         })
-        .then((res) => res.json())
         .then(({ data, errors }) => {
             if (Array.isArray(errors) && errors.length) {
                 const message = errors[0]?.message ?? JSON.stringify(errors[0]);

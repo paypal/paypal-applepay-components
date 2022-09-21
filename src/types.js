@@ -7,7 +7,7 @@ export type OrderPayload = {|
   intent : string,
   purchase_units : $ReadOnlyArray<{|
     amount : {| currency_code : string, value : string |},
-    payee : {| merchant_id : $ReadOnlyArray<string> |}
+    payee : {| merchant_id : string |}
   |}>
 |};
 
