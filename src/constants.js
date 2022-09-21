@@ -5,10 +5,16 @@ export const DEFAULT_API_HEADERS = {
     'Accept':       'application/json'
 };
 
-export const DEFAULT_GQL_HEADERS = {
+type Headers = {|
+    'Content-Type' : string,
+    'Accept' : string,
+    'origin' : string
+|};
+
+export const DEFAULT_GQL_HEADERS : Headers = {
     'Content-Type': 'application/json',
     'Accept':       'application/json',
-    'origin':       (process.env.NODE_ENV === 'test') && 'https://www.mypaypal.com'
+    'origin':       (process.env.NODE_ENV === 'test') ? 'https://www.mypaypal.com' : window.location
 };
 
 export const FPTI_TRANSITION = {

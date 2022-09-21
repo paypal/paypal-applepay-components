@@ -30,7 +30,6 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
         .then((res) => res.json())
         .then(({ access_token }) => access_token);
 
-    // "https://api.sandbox.paypal.com/v2/checkout/orders"
     const res = await fetch(
         `${ getPayPalAPIDomain() }/v2/checkout/orders`,
         {
@@ -52,10 +51,7 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
 
 function config() : Promise<ConfigResponse> {
 
-    // console.log( `${ getPayPalAPIDomain() }/graphql?GetApplepayConfig`)
-
     return fetch(
-    //  "https://cors-anywhere.herokuapp.com/https://www.sandbox.paypal.com/graphql?GetApplepayConfig",
         `${ getPayPalAPIDomain() }/graphql?GetApplepayConfig`,
         {
             method:       'POST',
@@ -134,7 +130,6 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
     });
 
     return fetch(
-    // "https://cors-anywhere.herokuapp.com/https://www.sandbox.paypal.com/graphql?GetApplepayConfig",v
         `${ getPayPalAPIDomain() }/graphql?GetApplePayMerchantSession`,
         {
             credentials: 'include',
@@ -204,7 +199,6 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
 
     return fetch(
         `{ ${ getPayPalAPIDomain() }/graphql?ApproveApplePayPayment`,
-        //  "https://cors-anywhere.herokuapp.com/https://www.sandbox.paypal.com/graphql?ApproveApplePayPayment",
         {
             credentials: 'include',
             method:       'POST',

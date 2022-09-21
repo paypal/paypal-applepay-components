@@ -1,5 +1,4 @@
 /* @flow */
-// import fetchMock from 'jest-fetch-mock';
 
 import fetch from 'isomorphic-fetch';
 import btoa from 'btoa';
@@ -32,42 +31,47 @@ jest.mock('@paypal/sdk-client/src', () => ({
 
 describe('applepay', () => {
 
-    it('Creates Order', async () => {
-        const applepay = Applepay();
-       
-        const { id, status } = await applepay.createOrder({
-            intent:         'CAPTURE',
-            purchase_units: [
-                {
-                    amount: {
-                        currency_code: 'USD',
-                        value:         '1.00'
+    describe('Order', () => {
+        it('Creates Order', async () => {
+            const applepay = Applepay();
+           
+            const { id, status } = await applepay.createOrder({
+                intent:         'CAPTURE',
+                purchase_units: [
+                    {
+                        amount: {
+                            currency_code: 'USD',
+                            value:         '1.00'
+                        }
                     }
-                }
-            ]
-        });
-
-        expect(id).toBeTruthy();
-        expect(status).toBe('CREATED');
-
-    });
-
-    it('GetAppelPayConfig', async () => {
-        const applepay = Applepay();
+                ]
+            });
     
-        expect(await applepay.config()).toEqual({
-            merchantCountry:   'US',
-            supportedNetworks: [
-                'masterCard',
-                'discover',
-                'visa',
-                'amex'
-            ]
+            expect(id).toBeTruthy();
+            expect(status).toBe('CREATED');
+    
         });
+    
     });
 
 
-    it('validateMerchant should fail for invalid domain', async () => {
+    describe('Config', () => {
+        it('GetAppelPayConfig', async () => {
+            const applepay = Applepay();
+        
+            expect(await applepay.config()).toEqual({
+                merchantCountry:   'US',
+                supportedNetworks: [
+                    'masterCard',
+                    'discover',
+                    'visa',
+                    'amex'
+                ]
+            });
+        });
+    });
+
+    it('should fail for invalid domain', async () => {
         const applepay = Applepay();
 
 
@@ -87,25 +91,27 @@ describe('applepay', () => {
 
     });
 
-    it('validateMerchant', async () => {
-        const applepay = Applepay();
-
-
-        global.window = {
-            location: {
-                href: 'sandbox-applepay-paypal-js-sdk.herokuapp.com'
-            }
-        };
-
-        const response = await applepay.validateMerchant({
-            validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+    describe('Validate Merchant', () => {
+        it('should validdate a valid url', async () => {
+            const applepay = Applepay();
+    
+    
+            global.window = {
+                location: {
+                    href: 'sandbox-applepay-paypal-js-sdk.herokuapp.com'
+                }
+            };
+    
+            const response = await applepay.validateMerchant({
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+            });
+    
+            expect(response.displayName).toEqual('Custom Clothing');
+            expect(response.signature).toEqual(expect.any(String));
+            expect(response.nonce).toEqual(expect.any(String));
+    
         });
-
-        expect(response.displayName).toEqual('Custom Clothing');
-        expect(response.signature).toEqual(expect.any(String));
-        expect(response.nonce).toEqual(expect.any(String));
-        expect(response.displayName).toEqual('Custom Clothing');
-
     });
+
 });
 
