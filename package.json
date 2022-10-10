@@ -1,7 +1,7 @@
 {
-  "name": "@paypal/applepay",
-  "version": "1.2.2",
-  "description": "A PayPal Legal Messaging Library to display Legal Content on Merchant Websites",
+  "name": "@paypal/applepay-components",
+  "version": "1.0.0",
+  "description": "A PayPal Apple Pay Library to provide Apple Pay Integration",
   "main": "index.js",
   "scripts": {
     "flow-typed": "flow-typed install",
@@ -75,13 +75,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paypal/paypal-legal-components.git"
+    "url": "git+https://github.com/paypal/paypal-applepay-components.git"
   },
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/paypal/paypal-legal-components/issues"
+    "url": "https://github.com/paypal/paypal-applepay-components/issues"
   },
-  "homepage": "https://github.com/paypal/paypal-legal-components#readme",
+  "homepage": "https://github.com/paypal/paypal-applepay-components#readme",
   "devDependencies": {
     "@babel/core": "^7.19.1",
     "@babel/preset-env": "^7.19.1",

@@ -4,21 +4,20 @@ import {
     getClientID,
     getMerchantID,
     getLogger,
-    getPayPalAPIDomain,
-    // getCorrelationID
     getBuyerCountry
 } from '@paypal/sdk-client/src';
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
+import {getMerchantDomain, getCurrency, getPayPalHost} from './util'
 
 import type { ConfigResponse, ApplePaySession, ApproveParams, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType } from './types';
 import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
 import { logApplePayEvent } from './logging';
 
 async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse> {
-    const basicAuth = btoa(`${ getClientID() }:`);
-
+    const basicAuth = btoa(`${ getClientID() }`);
+    const domain = getPayPalHost('customDomain')
     const accessToken = await fetch(
-        `${ getPayPalAPIDomain() }/v1/oauth2/token`,
+        `https://api.${domain}/v1/oauth2/token`,
         {
             method:       'POST',
             headers:      {
@@ -31,7 +30,7 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
         .then(({ access_token }) => access_token);
 
     const res = await fetch(
-        `${ getPayPalAPIDomain() }/v2/checkout/orders`,
+        `https://api.${domain}/v2/checkout/orders`,
         {
             method:       'POST',
             headers:      {
@@ -49,10 +48,11 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
     };
 }
 
-function config() : Promise<ConfigResponse> {
+async function config() : Promise<ConfigResponse> {
+    const domain = getPayPalHost('customDomain')
 
     return fetch(
-        `${ getPayPalAPIDomain() }/graphql?GetApplepayConfig`,
+        `https://www.${domain}/graphql?GetApplepayConfig`,
         {
             method:       'POST',
             credentials: 'include',
@@ -97,7 +97,7 @@ function config() : Promise<ConfigResponse> {
                 throw new Error(message);
             }
             
-            return data.applepayConfig;
+            return { ...data.applepayConfig, currencyCode: getCurrency(), countryCode: data.applepayConfig.merchantCountry };
         })
         .catch((err) => {
             getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
@@ -114,24 +114,10 @@ function config() : Promise<ConfigResponse> {
 
 async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
     logApplePayEvent('validatemerchant', { validationUrl });
-
-    const { id } = await createOrder({
-        intent:         'CAPTURE',
-        purchase_units: [
-            {
-                amount: {
-                    currency_code: 'USD',
-                    value:         '1.00'
-                },
-                payee: {
-                    merchant_id: getMerchantID()[0]
-                }
-            }
-        ]
-    });
+    const domain = getPayPalHost('customDomain')
 
     return fetch(
-        `${ getPayPalAPIDomain() }/graphql?GetApplePayMerchantSession`,
+        `https://www.${domain}/graphql?GetApplePayMerchantSession`,
         {
             credentials: 'include',
             method:       'POST',
@@ -142,13 +128,11 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
                 query: `
                   query GetApplePayMerchantSession(
                       $url : String!
-                      $orderID : String!
                       $clientID : String!
                       $merchantDomain : String!
                   ) {
                       applePayMerchantSession(
                           url: $url
-                          orderID: $orderID
                           clientID: $clientID
                           merchantDomain: $merchantDomain
                       ) {
@@ -158,8 +142,7 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
                 variables: {
                     url:            validationUrl,
                     clientID:       getClientID(),
-                    orderID:        id,
-                    merchantDomain: window.location.href
+                    merchantDomain: getMerchantDomain()
                 }
             })
         }
@@ -194,11 +177,12 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
 }
 
 
-function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
+async function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
     logApplePayEvent('paymentauthorized');
+    const domain = getPayPalHost('customDomain')
 
     return fetch(
-        `{ ${ getPayPalAPIDomain() }/graphql?ApproveApplePayPayment`,
+        `https://www.${domain}/graphql?ApproveApplePayPayment`,
         {
             credentials: 'include',
             method:       'POST',
@@ -256,6 +240,7 @@ function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
             throw err;
         });
 }
+
 
 export function Applepay() : ApplepayType {
 
