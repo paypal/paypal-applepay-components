@@ -38,3 +38,7 @@ export const FPTI_CUSTOM_KEY = {
     INFO_MSG:                   ('info_msg' : 'info_msg')
 };
 
+export const ORDER_INTENT = {
+    CAPTURE:   'CAPTURE',
+    AUTHORIZE: 'AUTHORIZE'
+};

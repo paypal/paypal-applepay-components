@@ -6,13 +6,14 @@ import atob from 'atob';
 
 import { Applepay } from '../applepay';
 
+
 global.fetch = fetch;
 global.btoa = btoa;
 global.atob = atob;
 
 jest.mock('@paypal/sdk-client/src', () => ({
-    getClientID:        () => 'AdVrVyh_UduEct9CWFHsaHRXKVxbnCDleEJdVOZdb52qSjrWkKDNd6E1CNvd5BvNrGSsXzgQ238dGgZ4',
-    getMerchantID:      () => [ '2V9L63AM2BYKC' ],
+    getClientID:        () => 'AfALq_mQ3SUUltuavn8MnEaXPCPFRl4aOZDTcDTo1I4FsJGN3TPFZ1THvcT39wAF3S250a5oqCUbpJHH',
+    getMerchantID:      () => [ 'HZZ2RQHJM4CE6' ],
     getPayPalAPIDomain: () => 'https://www.sandbox.paypal.com',
     getBuyerCountry:    () => 'US',
     getLogger:          () => ({
@@ -26,8 +27,25 @@ jest.mock('@paypal/sdk-client/src', () => ({
                 flush: () => ({})
             })
         })
-    })
+    }),
+    getSDKQueryParam: (param) => {
+        if (param === 'currency') {
+            return 'USD';
+        }
+
+        return '';
+    }
 }));
+
+jest.mock('.././util', () => {
+    const originalModule = jest.requireActual('.././util');
+
+    return {
+        ...originalModule,
+        getMerchantDomain: () => 'sandbox-applepay-paypal-js-sdk.herokuapp.com',
+        getPayPalHost:     () => 'msmaster.qa.paypal.com'
+    };
+});
 
 describe('applepay', () => {
 
@@ -44,7 +62,7 @@ describe('applepay', () => {
                             value:         '1.00'
                         },
                         payee: {
-                            merchant_id: '2V9L63AM2BYKC'
+                            merchant_id: 'HZZ2RQHJM4CE6'
                         }
                     }
                 ]
@@ -61,15 +79,19 @@ describe('applepay', () => {
     describe('Config', () => {
         it('GetAppelPayConfig', async () => {
             const applepay = Applepay();
-        
-            expect(await applepay.config()).toEqual({
-                merchantCountry:   'US',
+            const config = await applepay.config();
+            expect(config).toEqual({
+                merchantCountry:       'US',
+                countryCode:       'US',
+                currencyCode:      'USD',
                 supportedNetworks: [
                     'masterCard',
                     'discover',
                     'visa',
                     'amex'
-                ]
+                ],
+                isEligible:           true,
+                merchantCapabilities: [ 'supports3DS', 'supportsCredit', 'supportsDebit' ]
             });
         });
     });
@@ -84,13 +106,14 @@ describe('applepay', () => {
             }
         };
 
-        try {
-            await applepay.validateMerchant({
-                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
-            });
-        } catch (err) {
-            expect(err.message.includes('NOT_ENABLED_FOR_APPLE_PAY')).toBe(true);
-        }
+       
+        const res = await applepay.validateMerchant({
+            validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+        });
+            
+        expect(res.name).toBe('ERROR_VALIDATING_MERCHANT');
+        expect(res.message.includes('NOT_ENABLED_FOR_APPLE_PAY')).toBe(true);
+        
 
     });
 
@@ -101,7 +124,7 @@ describe('applepay', () => {
     
             global.window = {
                 location: {
-                    href: 'sandbox-applepay-paypal-js-sdk.herokuapp.com'
+                    href: 'https://sandbox-applepay-paypal-js-sdk.herokuapp.com'
                 }
             };
     
@@ -117,4 +140,3 @@ describe('applepay', () => {
     });
 
 });
-

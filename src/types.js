@@ -95,6 +95,13 @@ export type ApproveParams = {|
   payment : ApplePayPayment
 |};
 
+export type ConfirmOrderParams = {|
+  orderID : string,
+  token : ApplePayPaymentToken,
+  billingContact? : ApplePayPaymentContact,
+  shippingContact? : ApplePayPaymentContact
+|};
+
 export type ValidateMerchantParams = {|
   validationUrl : string
 |};

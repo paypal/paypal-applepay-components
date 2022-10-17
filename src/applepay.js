@@ -7,17 +7,17 @@ import {
     getBuyerCountry
 } from '@paypal/sdk-client/src';
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
-import {getMerchantDomain, getCurrency, getPayPalHost} from './util'
 
-import type { ConfigResponse, ApplePaySession, ApproveParams, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType } from './types';
+import { getMerchantDomain, getPayPalHost, mapGetConfigResponse, ApplePayError } from './util';
+import type { ConfigResponse, ApplePaySession, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams } from './types';
 import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
 import { logApplePayEvent } from './logging';
 
 async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse> {
     const basicAuth = btoa(`${ getClientID() }`);
-    const domain = getPayPalHost('customDomain')
+    const domain = getPayPalHost('customDomain');
     const accessToken = await fetch(
-        `https://api.${domain}/v1/oauth2/token`,
+        `https://api.${ domain }/v1/oauth2/token`,
         {
             method:       'POST',
             headers:      {
@@ -26,11 +26,15 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
             body: 'grant_type=client_credentials'
         }
     )
-        .then((res) => res.json())
-        .then(({ access_token }) => access_token);
+        .then((res) => {
+            return res.json();
+        })
+        .then(({ access_token }) => {
+            return access_token;
+        });
 
     const res = await fetch(
-        `https://api.${domain}/v2/checkout/orders`,
+        `https://api.${ domain }/v2/checkout/orders`,
         {
             method:       'POST',
             headers:      {
@@ -48,11 +52,11 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
     };
 }
 
-async function config() : Promise<ConfigResponse> {
-    const domain = getPayPalHost('customDomain')
+function config() : Promise<ConfigResponse> {
+    const domain = getPayPalHost('customDomain');
 
     return fetch(
-        `https://www.${domain}/graphql?GetApplepayConfig`,
+        `https://www.${ domain }/graphql?GetApplepayConfig`,
         {
             method:       'POST',
             credentials: 'include',
@@ -87,17 +91,18 @@ async function config() : Promise<ConfigResponse> {
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error(`GetApplepayConfig response status ${ res.status }`);
+                const { headers } = res;
+                throw new ApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
             }
             return res.json();
         })
-        .then(({ data, errors }) => {
+        .then(({ data, errors, extensions }) => {
             if (Array.isArray(errors) && errors.length) {
                 const message = errors[0]?.message ?? JSON.stringify(errors[0]);
-                throw new Error(message);
+                throw new ApplePayError('APPLEPAY_CONFIG_ERROR', message, extensions?.correlationId);
             }
             
-            return { ...data.applepayConfig, currencyCode: getCurrency(), countryCode: data.applepayConfig.merchantCountry };
+            return mapGetConfigResponse(data.applepayConfig);
         })
         .catch((err) => {
             getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
@@ -107,17 +112,21 @@ async function config() : Promise<ConfigResponse> {
                 })
                 .flush();
 
-            throw err;
+            return {
+                name:            err.errorName,
+                fullDescription: err.message,
+                paypalDebugId:   err.paypalDebugId
+            };
         });
 }
 
 
-async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
+function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
     logApplePayEvent('validatemerchant', { validationUrl });
-    const domain = getPayPalHost('customDomain')
+    const domain = getPayPalHost('customDomain');
 
     return fetch(
-        `https://www.${domain}/graphql?GetApplePayMerchantSession`,
+        `https://www.${ domain }/graphql?GetApplePayMerchantSession`,
         {
             credentials: 'include',
             method:       'POST',
@@ -149,20 +158,24 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error(`GetApplePayMerchantSession response status ${ res.status }`);
+                const { headers } = res;
+                throw new ApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
             }
             return res.json();
         })
-        .then(({ data, errors }) => {
+        .then(({ data, errors, extensions }) => {
             if (Array.isArray(errors) && errors.length) {
-                const message = errors[0]?.message ?? JSON.stringify(errors[0]);
+                const error = {
+                    name:            errors[0]?.name || 'ERROR_VALIDATING_MERCHANT',
+                    fullDescription: errors[0]?.message ?? JSON.stringify(errors[0]),
+                    paypalDebugId:   extensions?.correlationId
+                };
 
-                throw new Error(message);
+                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
-            return data;
-        })
-        .then(({ applePayMerchantSession }) => {
-            const payload = atob(applePayMerchantSession.session);
+
+            const { applePayMerchantSession } =  data;
+            const payload = applePayMerchantSession ? atob(applePayMerchantSession.session) : data;
             return JSON.parse(payload);
         })
         .catch((err) => {
@@ -172,17 +185,22 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
                     [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
                 })
                 .flush();
-            throw err;
+
+            return {
+                name:            err.errorName,
+                message:       err.message,
+                paypalDebugId:   err.paypalDebugId
+            };
         });
 }
 
 
-async function approvePayment({ orderID, payment } : ApproveParams) : Promise<void> {
+function confirmOrder({ orderID, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void> {
     logApplePayEvent('paymentauthorized');
-    const domain = getPayPalHost('customDomain')
+    const domain = getPayPalHost('customDomain');
 
     return fetch(
-        `https://www.${domain}/graphql?ApproveApplePayPayment`,
+        `https://www.${ domain }/graphql?ApproveApplePayPayment`,
         {
             credentials: 'include',
             method:       'POST',
@@ -207,9 +225,9 @@ async function approvePayment({ orderID, payment } : ApproveParams) : Promise<vo
                       )
                     }`,
                 variables: {
-                    token:           payment.token,
-                    billingContact:  payment.billingContact,
-                    shippingContact: payment.shippingContact,
+                    token,
+                    billingContact,
+                    shippingContact,
                     clientID:        getClientID(),
                     orderID
                 }
@@ -218,14 +236,27 @@ async function approvePayment({ orderID, payment } : ApproveParams) : Promise<vo
     )
         .then((res) => {
             if (!res.ok) {
-                throw new Error(`ApproveApplePayPayment response status ${ res.status }`);
+                const { headers } = res;
+                const error = {
+                    name:            'INTERNAL_SERVER_ERROR',
+                    fullDescription: 'An internal server error has occurred',
+                    paypalDebugId:   headers['Paypal-Debug-Id']
+                };
+
+                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
             return res.json();
         })
-        .then(({ data, errors }) => {
+        .then(({ data, errors, extensions }) => {
             if (Array.isArray(errors) && errors.length) {
-                const message = errors[0]?.message ?? JSON.stringify(errors[0]);
-                throw new Error(message);
+
+                const error = {
+                    name:            errors[0]?.name || 'APPLEPAY_PAYMENT_ERROR',
+                    fullDescription: errors[0]?.message ?? JSON.stringify(errors[0]),
+                    paypalDebugId:   extensions?.correlationId
+                };
+                
+                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
             return data;
         })
@@ -237,7 +268,11 @@ async function approvePayment({ orderID, payment } : ApproveParams) : Promise<vo
                 })
                 .flush();
 
-            throw err;
+            return {
+                name:            err.errorName,
+                message:       err.message,
+                paypalDebugId:   err.paypalDebugId
+            };
         });
 }
 
@@ -248,6 +283,6 @@ export function Applepay() : ApplepayType {
         createOrder,
         config,
         validateMerchant,
-        approvePayment
+        confirmOrder
     };
 }
