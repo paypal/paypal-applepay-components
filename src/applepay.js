@@ -126,23 +126,26 @@ async function validateMerchant({ validationUrl } : ValidateMerchantParams) : Pr
             },
             body: JSON.stringify({
                 query: `
-                  query GetApplePayMerchantSession(
-                      $url : String!
-                      $clientID : String!
-                      $merchantDomain : String!
-                  ) {
-                      applePayMerchantSession(
-                          url: $url
-                          clientID: $clientID
-                          merchantDomain: $merchantDomain
-                      ) {
-                          session
-                      }
-                  }`,
-                variables: {
-                    url:            validationUrl,
-                    clientID:       getClientID(),
-                    merchantDomain: getMerchantDomain()
+                query GetApplePayMerchantSession(
+                    $url : String!
+                    $clientID : String!
+                    $merchantID : [String]
+                    $merchantDomain : String!
+                ) {
+                    applePayMerchantSession(
+                        url: $url
+                        clientID: $clientID
+                        merchantID: $merchantID
+                        merchantDomain: $merchantDomain
+                    ) {
+                        session
+                    }
+                }`,
+              variables: {
+                  url:            validationUrl,
+                  clientID:       getClientID(),
+                  merchantID: getMerchantID()
+                  merchantDomain: getMerchantDomain()
                 }
             })
         }
