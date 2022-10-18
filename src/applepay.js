@@ -157,7 +157,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
               variables: {
                   url:            validationUrl,
                   clientID:       getClientID(),
-                  merchantID: getMerchantID()
+                  merchantID: getMerchantID(),
                   merchantDomain: getMerchantDomain()
                 }
             })
