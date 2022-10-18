@@ -8,7 +8,7 @@ import {
 } from '@paypal/sdk-client/src';
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
-import { getMerchantDomain, getPayPalHost, mapGetConfigResponse, ApplePayError } from './util';
+import { getMerchantDomain, getPayPalHost, mapGetConfigResponse, PayPalApplePayError } from './util';
 import type { ConfigResponse, ApplePaySession, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams } from './types';
 import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
 import { logApplePayEvent } from './logging';
@@ -92,31 +92,35 @@ function config() : Promise<ConfigResponse> {
         .then((res) => {
             if (!res.ok) {
                 const { headers } = res;
-                throw new ApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
+                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
             }
             return res.json();
         })
         .then(({ data, errors, extensions }) => {
             if (Array.isArray(errors) && errors.length) {
                 const message = errors[0]?.message ?? JSON.stringify(errors[0]);
-                throw new ApplePayError('APPLEPAY_CONFIG_ERROR', message, extensions?.correlationId);
+                throw new PayPalApplePayError('APPLEPAY_CONFIG_ERROR', message, extensions?.correlationId);
             }
             
             return mapGetConfigResponse(data.applepayConfig);
         })
         .catch((err) => {
-            getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
-                .track({
-                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR,
-                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
-                })
-                .flush();
+            if (err instanceof PayPalApplePayError) {
+                getLogger().error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
+                    .track({
+                        [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR,
+                        [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                    })
+                    .flush();
 
-            return {
-                name:            err.errorName,
-                fullDescription: err.message,
-                paypalDebugId:   err.paypalDebugId
-            };
+                return {
+                    name:            err.errorName,
+                    fullDescription: err.message,
+                    paypalDebugId:   err.paypalDebugId
+                };
+            } else {
+                throw err;
+            }
         });
 }
 
@@ -159,7 +163,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
         .then((res) => {
             if (!res.ok) {
                 const { headers } = res;
-                throw new ApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
+                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
             }
             return res.json();
         })
@@ -171,7 +175,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
                     paypalDebugId:   extensions?.correlationId
                 };
 
-                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
+                throw new PayPalApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
 
             const { applePayMerchantSession } =  data;
@@ -179,18 +183,22 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
             return JSON.parse(payload);
         })
         .catch((err) => {
-            getLogger().error(FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR)
-                .track({
-                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR,
-                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
-                })
-                .flush();
+            if (err instanceof PayPalApplePayError) {
+                getLogger().error(FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR)
+                    .track({
+                        [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR,
+                        [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                    })
+                    .flush();
 
-            return {
-                name:            err.errorName,
-                message:       err.message,
-                paypalDebugId:   err.paypalDebugId
-            };
+                return {
+                    name:            err.errorName,
+                    message:       err.message,
+                    paypalDebugId:   err.paypalDebugId
+                };
+            } else {
+                throw err;
+            }
         });
 }
 
@@ -243,7 +251,7 @@ function confirmOrder({ orderID, token, billingContact, shippingContact } : Conf
                     paypalDebugId:   headers['Paypal-Debug-Id']
                 };
 
-                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
+                throw new PayPalApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
             return res.json();
         })
@@ -256,23 +264,27 @@ function confirmOrder({ orderID, token, billingContact, shippingContact } : Conf
                     paypalDebugId:   extensions?.correlationId
                 };
                 
-                throw new ApplePayError(error.name, error.fullDescription, error.paypalDebugId);
+                throw new PayPalApplePayError(error.name, error.fullDescription, error.paypalDebugId);
             }
             return data;
         })
         .catch((err) => {
-            getLogger().error(FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR)
-                .track({
-                    [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR,
-                    [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
-                })
-                .flush();
+            if (err instanceof PayPalApplePayError) {
+                getLogger().error(FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR)
+                    .track({
+                        [FPTI_KEY.TRANSITION]:      FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR,
+                        [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${ err.message }) }`
+                    })
+                    .flush();
 
-            return {
-                name:            err.errorName,
-                message:       err.message,
-                paypalDebugId:   err.paypalDebugId
-            };
+                return {
+                    name:            err.errorName,
+                    message:       err.message,
+                    paypalDebugId:   err.paypalDebugId
+                };
+            } else {
+                throw err;
+            }
         });
 }
 

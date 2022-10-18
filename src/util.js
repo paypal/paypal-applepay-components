@@ -66,10 +66,10 @@ export function  mapGetConfigResponse(applepayConfig) : ConfigResponse {
 }
 
 
-export class ApplePayError extends Error {
+export class PayPalApplePayError extends Error {
     constructor(name, message, paypalDebugId) {
         super(message);
-        this.name = 'ApplePayError';
+        this.name = 'PayPalApplePayError';
         this.errorName = name;
         this.paypalDebugId = paypalDebugId;
     }

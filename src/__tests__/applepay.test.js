@@ -113,6 +113,7 @@ describe('applepay', () => {
             
         expect(res.name).toBe('ERROR_VALIDATING_MERCHANT');
         expect(res.message.includes('NOT_ENABLED_FOR_APPLE_PAY')).toBe(true);
+        expect(res.paypalDebugId).toEqual(expect.any(String));
         
 
     });
