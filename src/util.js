@@ -8,7 +8,7 @@ import {
 } from '@paypal/sdk-client/src';
 
 import { ORDER_INTENT } from './constants';
-import { ConfigResponse } from './types';
+import type { ConfigResponse, GQLConfigResponse } from './types';
 
 export function getMerchantDomain() : string {
     const url = window.location.origin;
@@ -19,7 +19,7 @@ export function getCurrency() : string {
     return getSDKQueryParam('currency', 'USD');
 }
 
-export function getPayPalHost(customDomain) : string {
+export function getPayPalHost(customDomain : string) : any {
     const params = new URLSearchParams(document.location.search);
     if (params.get(customDomain)) {
         return params.get(customDomain);
@@ -34,7 +34,7 @@ type CreateOrderPayLoad = {|
     application_context : any
 |};
 
-export function getCreateOrderPayLoad(requestPayLoad) : CreateOrderPayLoad {
+export function getCreateOrderPayLoad(requestPayLoad : any) : CreateOrderPayLoad {
     const merchant_id = getMerchantID();
     let { purchase_units, intent, payer, application_context } = requestPayLoad;
     purchase_units = purchase_units.map(purchaseUnit => {
@@ -57,7 +57,7 @@ export function getCreateOrderPayLoad(requestPayLoad) : CreateOrderPayLoad {
 }
 
  
-export function  mapGetConfigResponse(applepayConfig) : ConfigResponse {
+export function  mapGetConfigResponse(applepayConfig : GQLConfigResponse) : ConfigResponse {
     return {
         ...applepayConfig,
         currencyCode: getCurrency(),
@@ -67,7 +67,9 @@ export function  mapGetConfigResponse(applepayConfig) : ConfigResponse {
 
 
 export class PayPalApplePayError extends Error {
-    constructor(name, message, paypalDebugId) {
+    paypalDebugId: null | string;
+    errorName: string;
+    constructor(name : string, message : string, paypalDebugId : null | string) {
         super(message);
         this.name = 'PayPalApplePayError';
         this.errorName = name;

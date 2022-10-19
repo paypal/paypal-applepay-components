@@ -9,7 +9,7 @@ import {
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
 import { getMerchantDomain, getPayPalHost, mapGetConfigResponse, PayPalApplePayError } from './util';
-import type { ConfigResponse, ApplePaySession, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams } from './types';
+import type { ConfigResponse, ApplePaySession, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams, PayPalApplePayErrorType } from './types';
 import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
 import { logApplePayEvent } from './logging';
 
@@ -52,7 +52,7 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
     };
 }
 
-function config() : Promise<ConfigResponse> {
+function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
     const domain = getPayPalHost('customDomain');
 
     return fetch(
@@ -92,7 +92,7 @@ function config() : Promise<ConfigResponse> {
         .then((res) => {
             if (!res.ok) {
                 const { headers } = res;
-                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
+                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers.get('Paypal-Debug-Id'));
             }
             return res.json();
         })
@@ -115,7 +115,7 @@ function config() : Promise<ConfigResponse> {
 
                 return {
                     name:            err.errorName,
-                    fullDescription: err.message,
+                    message:       err.message,
                     paypalDebugId:   err.paypalDebugId
                 };
             } else {
@@ -125,7 +125,7 @@ function config() : Promise<ConfigResponse> {
 }
 
 
-function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession> {
+function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession | PayPalApplePayErrorType> {
     logApplePayEvent('validatemerchant', { validationUrl });
     const domain = getPayPalHost('customDomain');
 
@@ -154,11 +154,11 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
                         session
                     }
                 }`,
-              variables: {
-                  url:            validationUrl,
-                  clientID:       getClientID(),
-                  merchantID: getMerchantID(),
-                  merchantDomain: getMerchantDomain()
+                variables: {
+                    url:            validationUrl,
+                    clientID:       getClientID(),
+                    merchantID:     getMerchantID(),
+                    merchantDomain: getMerchantDomain()
                 }
             })
         }
@@ -166,7 +166,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
         .then((res) => {
             if (!res.ok) {
                 const { headers } = res;
-                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers['Paypal-Debug-Id']);
+                throw new PayPalApplePayError('INTERNAL_SERVER_ERROR', 'An internal server error has occurred', headers.get('Paypal-Debug-Id'));
             }
             return res.json();
         })
@@ -206,7 +206,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
 }
 
 
-function confirmOrder({ orderID, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void> {
+function confirmOrder({ orderID, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType> {
     logApplePayEvent('paymentauthorized');
     const domain = getPayPalHost('customDomain');
 
@@ -251,7 +251,7 @@ function confirmOrder({ orderID, token, billingContact, shippingContact } : Conf
                 const error = {
                     name:            'INTERNAL_SERVER_ERROR',
                     fullDescription: 'An internal server error has occurred',
-                    paypalDebugId:   headers['Paypal-Debug-Id']
+                    paypalDebugId:   headers.get('Paypal-Debug-Id')
                 };
 
                 throw new PayPalApplePayError(error.name, error.fullDescription, error.paypalDebugId);

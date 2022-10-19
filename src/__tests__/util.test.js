@@ -43,7 +43,7 @@ describe('util', () => {
 
     describe('getPayPalHost', () => {
         it('should return \'paypal.com\'', () => {
-            expect(getPayPalHost()).toBe('paypal.com');
+            expect(getPayPalHost('')).toBe('paypal.com');
         });
     });
 
