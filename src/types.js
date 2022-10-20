@@ -11,10 +11,24 @@ export type OrderPayload = {|
   |}>
 |};
 
+export type PayPalApplePayErrorType = {|
+  name : string,
+  message : string,
+  paypalDebugId : null | string
+|};
+
 export type ConfigResponse = {|
-    isApplePayEligible : boolean,
+  isEligible : boolean,
     countryCode : string,
+    merchantCountry : string,
     currencyCode : string,
+    merchantCapabilities : $ReadOnlyArray<string>,
+    supportedNetworks : $ReadOnlyArray<string>
+  |};
+
+export type GQLConfigResponse = {|
+  isEligible : boolean,
+    merchantCountry : string,
     merchantCapabilities : $ReadOnlyArray<string>,
     supportedNetworks : $ReadOnlyArray<string>
   |};
@@ -108,7 +122,10 @@ export type ValidateMerchantParams = {|
 
 export type ApplepayType = {|
   createOrder(OrderPayload) : Promise<CreateOrderResponse>,
-  config() : Promise<ConfigResponse>,
-  validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession>,
-  approvePayment(ApproveParams) : Promise<void>
+  config() : Promise<ConfigResponse | PayPalApplePayErrorType>,
+  validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession | PayPalApplePayErrorType>,
+  confirmOrder(ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType>
 |};
+
+
+export type ValidateMerchantResponse = ApplePaySession | PayPalApplePayErrorType;
