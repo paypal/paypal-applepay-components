@@ -19,11 +19,7 @@ export function getCurrency() : string {
     return getSDKQueryParam('currency', 'USD');
 }
 
-export function getPayPalHost(customDomain : string) : any {
-    const params = new URLSearchParams(document.location.search);
-    if (params.get(customDomain)) {
-        return params.get(customDomain);
-    }
+export function getPayPalHost() : any {
     return getPayPalAPIDomain().split('//')[1];
 }
 

@@ -15,7 +15,7 @@ import { logApplePayEvent } from './logging';
 
 async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse> {
     const basicAuth = btoa(`${ getClientID() }`);
-    const domain = getPayPalHost('customDomain');
+    const domain = getPayPalHost();
     const accessToken = await fetch(
         `https://api.${ domain }/v1/oauth2/token`,
         {
@@ -53,7 +53,7 @@ async function createOrder(payload : OrderPayload) : Promise<CreateOrderResponse
 }
 
 function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
-    const domain = getPayPalHost('customDomain');
+    const domain = getPayPalHost();
 
     return fetch(
         `https://www.${ domain }/graphql?GetApplepayConfig`,
@@ -127,7 +127,7 @@ function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
 
 function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession | PayPalApplePayErrorType> {
     logApplePayEvent('validatemerchant', { validationUrl });
-    const domain = getPayPalHost('customDomain');
+    const domain = getPayPalHost();
 
     return fetch(
         `https://www.${ domain }/graphql?GetApplePayMerchantSession`,
@@ -208,7 +208,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
 
 function confirmOrder({ orderID, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType> {
     logApplePayEvent('paymentauthorized');
-    const domain = getPayPalHost('customDomain');
+    const domain = getPayPalHost();
 
     return fetch(
         `https://www.${ domain }/graphql?ApproveApplePayPayment`,
