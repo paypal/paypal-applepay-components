@@ -59,7 +59,6 @@ function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
         `https://www.${ domain }/graphql?GetApplepayConfig`,
         {
             method:       'POST',
-            credentials: 'include',
             headers:      {
                 ...DEFAULT_GQL_HEADERS
             },
@@ -132,7 +131,6 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
     return fetch(
         `https://www.${ domain }/graphql?GetApplePayMerchantSession`,
         {
-            credentials: 'include',
             method:       'POST',
             headers:      {
                 ...DEFAULT_GQL_HEADERS
@@ -213,7 +211,6 @@ function confirmOrder({ orderID, token, billingContact, shippingContact } : Conf
     return fetch(
         `https://www.${ domain }/graphql?ApproveApplePayPayment`,
         {
-            credentials: 'include',
             method:       'POST',
             headers:      {
                 ...DEFAULT_GQL_HEADERS
