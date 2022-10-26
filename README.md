@@ -39,3 +39,7 @@ npm run release
 ## Hosted Example
 
 See the code for Hosted Example [here](https://github.com/paypal-examples/applepay-stage/blob/main/examples/headless.html)
+
+## Contributing Guidelines
+
+[Guidelines](https://github.paypal.com/DigitalGoods-Payments-R/paypal-applepay-components/blob/master/CONTRIBUTING.md)
