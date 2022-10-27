@@ -3,7 +3,6 @@
 /* @flow */
 import {
     getSDKQueryParam,
-    getPayPalAPIDomain,
     getMerchantID
 } from '@paypal/sdk-client/src';
 
@@ -17,10 +16,6 @@ export function getMerchantDomain() : string {
 
 export function getCurrency() : string {
     return getSDKQueryParam('currency', 'USD');
-}
-
-export function getPayPalHost() : any {
-    return getPayPalAPIDomain().split('//')[1];
 }
 
 type CreateOrderPayLoad = {|

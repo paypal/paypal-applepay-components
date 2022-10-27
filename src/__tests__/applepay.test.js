@@ -13,7 +13,8 @@ import { getMerchantDomain } from '../util';
 jest.mock('@paypal/sdk-client/src', () => ({
     getClientID:        () => 'AfALq_mQ3SUUltuavn8MnEaXPCPFRl4aOZDTcDTo1I4FsJGN3TPFZ1THvcT39wAF3S250a5oqCUbpJHH',
     getMerchantID:      () => [ 'HZZ2RQHJM4CE6' ],
-    getPayPalAPIDomain: () => 'https://www.sandbox.paypal.com',
+    getPayPalAPIDomain: () => 'https://api.msmaster.qa.paypal.com',
+    getPayPalDomain:    () => 'https://www.msmaster.qa.paypal.com',
     getBuyerCountry:    () => 'US',
     getLogger:          () => ({
         info: () => ({
@@ -78,7 +79,7 @@ describe('applepay', () => {
             expect(status).toBe('CREATED');
     
         });
-    
+
     });
 
 
@@ -107,18 +108,17 @@ describe('applepay', () => {
 
        
         getMerchantDomain.mockReturnValueOnce('xxx.com');
-       
          
-        // eslint-disable-next-line flowtype/no-weak-types
-        const res : any = await applepay.validateMerchant({
-            validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
-        });
-            
-        expect(res.name).toBe('ERROR_VALIDATING_MERCHANT');
-        expect(res.message.includes('NOT_ENABLED_FOR_APPLE_PAY')).toBe(true);
-        expect(res.paypalDebugId).toEqual(expect.any(String));
-        
-
+         
+        try {
+            await applepay.validateMerchant({
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+            });
+        } catch (err) {
+            expect(err.name).toBe('PayPalApplePayError');
+            expect(err.message.includes('NOT_ENABLED_FOR_APPLE_PAY')).toBe(true);
+            expect(err.paypalDebugId).toEqual(expect.any(String));
+        }
     });
 
     describe('Validate Merchant', () => {

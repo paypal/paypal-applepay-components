@@ -1,7 +1,7 @@
 /* @flow */
 
 
-import { getMerchantDomain, getCurrency, getPayPalHost, getCreateOrderPayLoad, mapGetConfigResponse } from '../util';
+import { getMerchantDomain, getCurrency, getCreateOrderPayLoad, mapGetConfigResponse } from '../util';
 
 
 global.window = Object.create(window);
@@ -15,7 +15,7 @@ Object.defineProperty(window, 'location', {
 });
 
 jest.mock('@paypal/sdk-client/src', () => ({
-    getPayPalAPIDomain:      () => 'https://paypal.com',
+    getPayPalDomain:      () => 'https://paypal.com',
     getMerchantID:      () => 'HZZ2RQHJM4CE6',
     getBuyerCountry:    () => 'US',
     getSDKQueryParam:   (param) => {
@@ -41,11 +41,6 @@ describe('util', () => {
         });
     });
 
-    describe('getPayPalHost', () => {
-        it('should return \'paypal.com\'', () => {
-            expect(getPayPalHost('')).toBe('paypal.com');
-        });
-    });
 
     describe('getCreateOrderPayLoad', () => {
         it('should create order with capture Intent and default payee Information', () => {
