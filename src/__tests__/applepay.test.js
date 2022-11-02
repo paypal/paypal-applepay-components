@@ -132,10 +132,10 @@ describe('applepay', () => {
                 validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
             });
     
-            expect(response.displayName).toEqual('Demo Inc.');
-            expect(response.signature).toEqual(expect.any(String));
-            expect(response.nonce).toEqual(expect.any(String));
-    
+            expect(response.merchantSession.displayName).toEqual('Demo Inc.');
+            expect(response.merchantSession.signature).toEqual(expect.any(String));
+            expect(response.merchantSession.nonce).toEqual(expect.any(String));
+            expect(response.paypalDebugId).toEqual(expect.any(String));
         });
     });
 

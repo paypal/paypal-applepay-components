@@ -11,7 +11,7 @@ import {
 import { FPTI_KEY } from '@paypal/sdk-constants/src';
 
 import { getMerchantDomain, mapGetConfigResponse, PayPalApplePayError } from './util';
-import type { ConfigResponse, ApplePaySession, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams, PayPalApplePayErrorType } from './types';
+import type { ConfigResponse, CreateOrderResponse, OrderPayload, ValidateMerchantParams, ApplepayType, ConfirmOrderParams, PayPalApplePayErrorType, ValidateMerchantResponse } from './types';
 import { FPTI_TRANSITION, FPTI_CUSTOM_KEY, DEFAULT_API_HEADERS, DEFAULT_GQL_HEADERS } from './constants';
 import { logApplePayEvent } from './logging';
 
@@ -133,7 +133,7 @@ function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
 }
 
 
-function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ApplePaySession | PayPalApplePayErrorType> {
+function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ValidateMerchantResponse | PayPalApplePayErrorType> {
     logApplePayEvent('validatemerchant', { validationUrl });
 
     return fetch(
@@ -189,7 +189,10 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
 
             const { applePayMerchantSession } =  data;
             const payload = applePayMerchantSession ? atob(applePayMerchantSession.session) : data;
-            return JSON.parse(payload);
+            return {
+                merchantSession: JSON.parse(payload),
+                paypalDebugId:   extensions?.correlationId
+            };
         })
         .catch((err) => {
             getLogger().error(FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR)

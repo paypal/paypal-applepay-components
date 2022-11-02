@@ -120,12 +120,17 @@ export type ValidateMerchantParams = {|
   validationUrl : string
 |};
 
+
+export type ValidateMerchantResponse = {|
+  merchantSession : ApplePaySession,
+  paypalDebugId : null | string
+|};
+
 export type ApplepayType = {|
   createOrder(OrderPayload) : Promise<CreateOrderResponse>,
   config() : Promise<ConfigResponse | PayPalApplePayErrorType>,
-  validateMerchant(ValidateMerchantParams) : Promise<ApplePaySession | PayPalApplePayErrorType>,
+  validateMerchant(ValidateMerchantParams) : Promise<ValidateMerchantResponse | PayPalApplePayErrorType>,
   confirmOrder(ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType>
 |};
 
 
-export type ValidateMerchantResponse = ApplePaySession | PayPalApplePayErrorType;
