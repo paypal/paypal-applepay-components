@@ -104,20 +104,16 @@ export type ApplePayPayment = {|
   shippingContact? : ApplePayPaymentContact
 |};
 
-export type ApproveParams = {|
-  orderID : string,
-  payment : ApplePayPayment
-|};
-
 export type ConfirmOrderParams = {|
-  orderID : string,
+  orderId : string,
   token : ApplePayPaymentToken,
   billingContact? : ApplePayPaymentContact,
   shippingContact? : ApplePayPaymentContact
 |};
 
 export type ValidateMerchantParams = {|
-  validationUrl : string
+  validationUrl : string,
+  displayName? : string
 |};
 
 

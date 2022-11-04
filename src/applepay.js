@@ -133,8 +133,8 @@ function config() : Promise<ConfigResponse | PayPalApplePayErrorType> {
 }
 
 
-function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<ValidateMerchantResponse | PayPalApplePayErrorType> {
-    logApplePayEvent('validatemerchant', { validationUrl });
+function validateMerchant({ validationUrl, displayName } : ValidateMerchantParams) : Promise<ValidateMerchantResponse | PayPalApplePayErrorType> {
+    logApplePayEvent('validatemerchant', { validationUrl, displayName });
 
     return fetch(
         `${ getPayPalDomain() }/graphql?GetApplePayMerchantSession`,
@@ -147,12 +147,14 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
                 query: `
                 query GetApplePayMerchantSession(
                     $url : String!
+                    $displayName : String
                     $clientID : String!
                     $merchantID : [String]
                     $merchantDomain : String!
                 ) {
                     applePayMerchantSession(
                         url: $url
+                        displayName: $displayName
                         clientID: $clientID
                         merchantID: $merchantID
                         merchantDomain: $merchantDomain
@@ -162,6 +164,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
                 }`,
                 variables: {
                     url:            validationUrl,
+                    displayName:    displayName,
                     clientID:       getClientID(),
                     merchantID:     getMerchantID(),
                     merchantDomain: getMerchantDomain()
@@ -209,7 +212,7 @@ function validateMerchant({ validationUrl } : ValidateMerchantParams) : Promise<
 }
 
 
-function confirmOrder({ orderID, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType> {
+function confirmOrder({ orderId, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType> {
     logApplePayEvent('paymentauthorized');
 
     return fetch(
@@ -241,7 +244,7 @@ function confirmOrder({ orderID, token, billingContact, shippingContact } : Conf
                     billingContact,
                     shippingContact,
                     clientID:        getClientID(),
-                    orderID
+                    orderID: orderId
                 }
             })
         }

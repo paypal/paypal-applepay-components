@@ -112,7 +112,7 @@ describe('applepay', () => {
          
         try {
             await applepay.validateMerchant({
-                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
             });
         } catch (err) {
             expect(err.name).toBe('PayPalApplePayError');
@@ -122,17 +122,34 @@ describe('applepay', () => {
     });
 
     describe('Validate Merchant', () => {
-        it('should validdate a valid url', async () => {
+        it('should validate a valid url', async () => {
             const applepay = Applepay();
     
             getMerchantDomain.mockReturnValueOnce('stage-applepay-paypal-js-sdk.herokuapp.com');
 
             // eslint-disable-next-line flowtype/no-weak-types
             const response : any = await applepay.validateMerchant({
-                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
             });
     
             expect(response.merchantSession.displayName).toEqual('Demo Inc.');
+            expect(response.merchantSession.signature).toEqual(expect.any(String));
+            expect(response.merchantSession.nonce).toEqual(expect.any(String));
+            expect(response.paypalDebugId).toEqual(expect.any(String));
+        });
+
+        it('should accept an optional display name for the apple pay button', async () => {
+            const applepay = Applepay();
+    
+            getMerchantDomain.mockReturnValueOnce('stage-applepay-paypal-js-sdk.herokuapp.com');
+
+            // eslint-disable-next-line flowtype/no-weak-types
+            const response : any = await applepay.validateMerchant({
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
+                displayName: 'Custom Business Name'
+            });
+    
+            expect(response.merchantSession.displayName).toEqual('Custom Business Name');
             expect(response.merchantSession.signature).toEqual(expect.any(String));
             expect(response.merchantSession.nonce).toEqual(expect.any(String));
             expect(response.paypalDebugId).toEqual(expect.any(String));
