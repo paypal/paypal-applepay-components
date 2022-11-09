@@ -164,7 +164,7 @@ function validateMerchant({ validationUrl, displayName } : ValidateMerchantParam
                 }`,
                 variables: {
                     url:            validationUrl,
-                    displayName:    displayName,
+                    displayName,
                     clientID:       getClientID(),
                     merchantID:     getMerchantID(),
                     merchantDomain: getMerchantDomain()
@@ -215,6 +215,16 @@ function validateMerchant({ validationUrl, displayName } : ValidateMerchantParam
 function confirmOrder({ orderId, token, billingContact, shippingContact } : ConfirmOrderParams) : Promise<void | PayPalApplePayErrorType> {
     logApplePayEvent('paymentauthorized');
 
+    // Fix Lowercase CountryCode from Apple
+    if (shippingContact?.countryCode) {
+        shippingContact.countryCode = shippingContact.countryCode.toUpperCase();
+    }
+
+    if (billingContact?.countryCode) {
+        billingContact.countryCode = billingContact.countryCode.toUpperCase();
+    }
+
+
     return fetch(
         `${ getPayPalDomain() }/graphql?ApproveApplePayPayment`,
         {
@@ -244,7 +254,7 @@ function confirmOrder({ orderId, token, billingContact, shippingContact } : Conf
                     billingContact,
                     shippingContact,
                     clientID:        getClientID(),
-                    orderID: orderId
+                    orderID:  orderId
                 }
             })
         }
