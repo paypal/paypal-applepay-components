@@ -15,8 +15,8 @@ Object.defineProperty(window, 'location', {
 });
 
 jest.mock('@paypal/sdk-client/src', () => ({
-    getPayPalDomain:      () => 'https://paypal.com',
-    getMerchantID:      () => 'HZZ2RQHJM4CE6',
+    getPayPalDomain:      () => 'https://www.sandbox.paypal.com',
+    getMerchantID:      () => '2V9L63AM2BYKC',
     getBuyerCountry:    () => 'US',
     getSDKQueryParam:   (param) => {
         if (param === 'currency') {
@@ -63,7 +63,7 @@ describe('util', () => {
                             value:         '0.99'
                         },
                         payee: {
-                            merchant_id: 'HZZ2RQHJM4CE6'
+                            merchant_id: '2V9L63AM2BYKC'
                         }
                     }
                 ],
@@ -93,7 +93,7 @@ describe('util', () => {
                             value:         '0.99'
                         },
                         payee: {
-                            merchant_id: 'HZZ2RQHJM4CE6'
+                            merchant_id: '2V9L63AM2BYKC'
                         }
                     }
                 ],
