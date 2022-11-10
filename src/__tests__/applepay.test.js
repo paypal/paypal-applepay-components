@@ -11,10 +11,10 @@ import { Applepay } from '../applepay';
 import { getMerchantDomain } from '../util';
 
 jest.mock('@paypal/sdk-client/src', () => ({
-    getClientID:        () => 'AfALq_mQ3SUUltuavn8MnEaXPCPFRl4aOZDTcDTo1I4FsJGN3TPFZ1THvcT39wAF3S250a5oqCUbpJHH',
-    getMerchantID:      () => [ 'HZZ2RQHJM4CE6' ],
-    getPayPalAPIDomain: () => 'https://api.msmaster.qa.paypal.com',
-    getPayPalDomain:    () => 'https://www.msmaster.qa.paypal.com',
+    getClientID:        () => 'AdVrVyh_UduEct9CWFHsaHRXKVxbnCDleEJdVOZdb52qSjrWkKDNd6E1CNvd5BvNrGSsXzgQ238dGgZ4',
+    getMerchantID:      () => [ '2V9L63AM2BYKC' ],
+    getPayPalAPIDomain: () => 'https://cors.api.sandbox.paypal.com',
+    getPayPalDomain:    () => 'https://www.sandbox.paypal.com',
     getBuyerCountry:    () => 'US',
     getLogger:          () => ({
         info: () => ({
@@ -45,7 +45,7 @@ jest.mock('../util', () => {
         __esModule:        true,
         ...originalModule,
         getMerchantDomain: jest.fn(),
-        getPayPalHost:     () => 'msmaster.qa.paypal.com'
+        getPayPalHost:     () => 'paypal.com'
     };
 });
 
@@ -69,7 +69,7 @@ describe('applepay', () => {
                             value:         '1.00'
                         },
                         payee: {
-                            merchant_id: 'HZZ2RQHJM4CE6'
+                            merchant_id: '2V9L63AM2BYKC'
                         }
                     }
                 ]
@@ -112,7 +112,7 @@ describe('applepay', () => {
          
         try {
             await applepay.validateMerchant({
-                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
             });
         } catch (err) {
             expect(err.name).toBe('PayPalApplePayError');
@@ -125,14 +125,14 @@ describe('applepay', () => {
         it('should validate a valid url', async () => {
             const applepay = Applepay();
     
-            getMerchantDomain.mockReturnValueOnce('stage-applepay-paypal-js-sdk.herokuapp.com');
+            getMerchantDomain.mockReturnValueOnce('sandbox-applepay-paypal-js-sdk.herokuapp.com');
 
             // eslint-disable-next-line flowtype/no-weak-types
             const response : any = await applepay.validateMerchant({
-                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
+                validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession'
             });
     
-            expect(response.merchantSession.displayName).toEqual('Demo Inc.');
+            expect(response.merchantSession.displayName).toEqual('Custom Clothing');
             expect(response.merchantSession.signature).toEqual(expect.any(String));
             expect(response.merchantSession.nonce).toEqual(expect.any(String));
             expect(response.paypalDebugId).toEqual(expect.any(String));
@@ -141,12 +141,12 @@ describe('applepay', () => {
         it('should accept an optional display name for the apple pay button', async () => {
             const applepay = Applepay();
     
-            getMerchantDomain.mockReturnValueOnce('stage-applepay-paypal-js-sdk.herokuapp.com');
+            getMerchantDomain.mockReturnValueOnce('sandbox-applepay-paypal-js-sdk.herokuapp.com');
 
             // eslint-disable-next-line flowtype/no-weak-types
             const response : any = await applepay.validateMerchant({
                 validationUrl: 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession',
-                displayName: 'Custom Business Name'
+                displayName:   'Custom Business Name'
             });
     
             expect(response.merchantSession.displayName).toEqual('Custom Business Name');
