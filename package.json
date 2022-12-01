@@ -1,5 +1,5 @@
 {
-  "name": "@paypal/applepay-components",
+  "name": "@krakenjs/applepay-components",
   "version": "1.4.0",
   "description": "A PayPal Apple Pay Library to provide Apple Pay Integration",
   "main": "index.js",
@@ -11,7 +11,11 @@
     "lint": "eslint --fix src/*.js",
     "test": "npm run lint && npm run flow && npm run test:unit",
     "karma": "cross-env NODE_ENV=test babel-node $(npm bin)/karma start",
+    "babel": "babel src/ --out-dir dist/module",
+    "webpack": "babel-node --plugins=transform-es2015-modules-commonjs ./node_modules/.bin/webpack --progress",
+    "build": "npm run test && npm run babel && npm run webpack",
     "prepare": "husky install",
+    "prerelease": "npm run clean && npm run build && git add dist && git commit -m 'ci: check in dist folder' || echo 'Nothing to distribute'",
     "release": "standard-version",
     "postrelease": "git push && git push --follow-tags && npm publish"
   },
@@ -85,7 +89,7 @@
     "@babel/preset-env": "^7.19.1",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
-    "@krakenjs/grumbler-scripts": "^6",
+    "@krakenjs/grumbler-scripts": "^8.0.4",
     "atob": "^2.1.2",
     "babel-jest": "^29.0.3",
     "btoa": "^1.2.1",

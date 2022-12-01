@@ -17,6 +17,7 @@ export const DEFAULT_GQL_HEADERS : Headers = {
     'x-app-name':   'sdk-applepay',
     'Content-Type': 'application/json',
     'Accept':       'application/json',
+    // eslint-disable-next-line no-process-env
     'origin':       (process.env.NODE_ENV === 'test') ? 'https://www.mypaypal.com' : window.location,
     'prefer':       'return=representation'
 };

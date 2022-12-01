@@ -1,11 +1,20 @@
 /* @flow */
 
 module.exports = {
-    'extends': './node_modules/@krakenjs/grumbler-scripts/config/.eslintrc.js',
+    extends: "@krakenjs/eslint-config-grumbler/eslintrc-browser",
 
     'globals': {
         __sdk__:          true,
-        __lebowski_pay__: true
+        __lebowski_pay__: true,
+        document: true,
+        performance: true,
+        assert: true,
+        beforeAll: true,
+        afterAll: true,
+        test: true,
+        jest: true,
+        page: true,
+        browserlist: true,
     },
     'overrides': [ {
         'files': [ '**/*.test.js' ],
@@ -15,5 +24,13 @@ module.exports = {
         'globals': {
             'JestMockFn': false
         }
-    } ]
+    } ],
+    rules: {
+        "compat/compat": "off",
+        "max-lines": "off",
+        "no-restricted-globals": "off",
+        "promise/no-native": "off",
+        "key-spacing": "off",
+        "import/no-commonjs": "off",
+      },
 };
