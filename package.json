@@ -1,5 +1,5 @@
 {
-  "name": "@krakenjs/applepay-components",
+  "name": "@paypal/applepay-components",
   "version": "1.4.0",
   "description": "A PayPal Apple Pay Library to provide Apple Pay Integration",
   "main": "index.js",
