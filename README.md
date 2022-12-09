@@ -17,10 +17,9 @@ Client Library that provides the capability for PayPal Partners and Merchants to
 
 ## Integration
 
-For Integration Steps Please Refer to PayPal Developer Docs for Apple Pay Integration 
+For Integration Steps Please Refer to PayPal Developer Docs for Apple Pay Integration
 
 https://developer.paypal.com/docs/checkout/apm/
-
 
 ## Tests
 
