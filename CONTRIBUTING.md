@@ -1,4 +1,3 @@
-
 # Contribution guidelines
 
 ## Reporting a bug or requesting a new feature
@@ -22,16 +21,18 @@ Follow the instructions below please:
 1. Checkout `develop` branch
 1. Optionally, create your own feature branch on your fork out of `develop` branch
 1. Apply your changes
-    1. Make sure all modules build and all unit tests pass
-    1. Make sure code coverage doesn't drop (add extra unit tests if necessary)
-    1. If fixing a bug, make sure you add an unit or functional test to expose the issue
-    1. If adding a new feature, make sure you add an unit or functional test to test the feature
-    1. If adding a new feature, add end user documentation as well
-    1. Add comments to the code explaining your changes if necessary
+   1. Make sure all modules build and all unit tests pass
+   1. Make sure code coverage doesn't drop (add extra unit tests if necessary)
+   1. If fixing a bug, make sure you add an unit or functional test to expose the issue
+   1. If adding a new feature, make sure you add an unit or functional test to test the feature
+   1. If adding a new feature, add end user documentation as well
+   1. Add comments to the code explaining your changes if necessary
 1. Create a pull request to the upstream `develop` branch (add the issue id in the end of PR and commit name preceded by a hashtag)
 
 ## Code style
+
 Make sure to follow the code style of the existing code. That means, for example, four spaces for indentation.
 
 ## More information
+
 Read more about best practices in [this github guide](https://guides.github.com/activities/contributing-to-open-source/).

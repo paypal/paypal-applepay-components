@@ -16,8 +16,8 @@ jobs:
       - name: ⎔ Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "16"
+          registry-url: "https://registry.npmjs.org"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
@@ -32,4 +32,3 @@ jobs:
 
       - name: ▶️ Run test script
         run: npm run test
-
