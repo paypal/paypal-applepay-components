@@ -4,7 +4,7 @@
 [![npm version][version-badge]][package]
 [![apache license][license-badge]][license]
 
-[build-badge]: https://img.shields.io/github/workflow/status/paypal/paypal-applepay-components/build?logo=github&style=flat-square
+[build-badge]: https://img.shields.io/github/actions/workflow/status/paypal/paypal-applepay-components/main.yml?branch=main&logo=github&style=flat-square
 [build]: https://github.com/paypal/paypal-applepay-components/actions?query=workflow%3Abuild
 [version-badge]: https://img.shields.io/npm/v/@paypal/applepay-components.svg?style=flat-square
 [package]: https://www.npmjs.com/package/@paypal/applepay-components
