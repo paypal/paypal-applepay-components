@@ -10,6 +10,7 @@ import { Applepay } from "../applepay";
 import { getMerchantDomain } from "../util";
 
 jest.mock("@paypal/sdk-client/src", () => ({
+  getPartnerAttributionID: () => "bn_code",
   getClientID: () =>
     "AdVrVyh_UduEct9CWFHsaHRXKVxbnCDleEJdVOZdb52qSjrWkKDNd6E1CNvd5BvNrGSsXzgQ238dGgZ4",
   getMerchantID: () => ["2V9L63AM2BYKC"],

@@ -45,7 +45,7 @@ async function createOrder(
       method: "POST",
       headers: {
         Authorization: `Basic ${basicAuth}`,
-        "PayPal-Partner-Attribution-Id": partnerAttributionId,
+        "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
       },
       body: "grant_type=client_credentials",
     })
@@ -265,7 +265,7 @@ function confirmOrder({
     method: "POST",
     headers: {
       ...DEFAULT_GQL_HEADERS,
-      "PayPal-Partner-Attribution-Id": partnerAttributionId,
+      "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
     },
     body: JSON.stringify({
       query: `
