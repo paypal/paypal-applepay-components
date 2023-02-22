@@ -258,7 +258,7 @@ function confirmOrder({
   if (billingContact?.countryCode) {
     billingContact.countryCode = billingContact.countryCode.toUpperCase();
   }
-  
+
   const partnerAttributionId = getPartnerAttributionID();
 
   return fetch(`${getPayPalDomain()}/graphql?ApproveApplePayPayment`, {
