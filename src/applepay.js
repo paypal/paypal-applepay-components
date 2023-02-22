@@ -7,6 +7,7 @@ import {
   getBuyerCountry,
   getPayPalDomain,
   getPayPalAPIDomain,
+  getPartnerAttributionID,
 } from "@paypal/sdk-client/src";
 import { FPTI_KEY } from "@paypal/sdk-constants/src";
 
@@ -37,12 +38,14 @@ async function createOrder(
   payload: OrderPayload
 ): Promise<CreateOrderResponse> {
   const basicAuth = btoa(`${getClientID()}`);
+  const partnerAttributionId = getPartnerAttributionID();
 
   try {
     const accessToken = await fetch(`${getPayPalAPIDomain()}/v1/oauth2/token`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${basicAuth}`,
+        "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
       },
       body: "grant_type=client_credentials",
     })
@@ -256,10 +259,13 @@ function confirmOrder({
     billingContact.countryCode = billingContact.countryCode.toUpperCase();
   }
 
+  const partnerAttributionId = getPartnerAttributionID();
+
   return fetch(`${getPayPalDomain()}/graphql?ApproveApplePayPayment`, {
     method: "POST",
     headers: {
       ...DEFAULT_GQL_HEADERS,
+      "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
     },
     body: JSON.stringify({
       query: `
