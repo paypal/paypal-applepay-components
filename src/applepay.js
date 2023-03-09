@@ -6,7 +6,6 @@ import {
   getLogger,
   getBuyerCountry,
   getPayPalDomain,
-  getPayPalAPIDomain,
   getPartnerAttributionID,
 } from "@paypal/sdk-client/src";
 import { FPTI_KEY } from "@paypal/sdk-constants/src";
@@ -27,7 +26,6 @@ import type {
 import {
   FPTI_TRANSITION,
   FPTI_CUSTOM_KEY,
-  DEFAULT_API_HEADERS,
   DEFAULT_GQL_HEADERS,
 } from "./constants";
 import { logApplePayEvent } from "./logging";

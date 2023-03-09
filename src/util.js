@@ -1,9 +1,8 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
-/* eslint-disable flowtype/no-weak-types */
-/* @flow */
-import { getSDKQueryParam, getMerchantID } from "@paypal/sdk-client/src";
 
-import { ORDER_INTENT } from "./constants";
+/* @flow */
+import { getSDKQueryParam } from "@paypal/sdk-client/src";
+
 import type { ConfigResponse, GQLConfigResponse } from "./types";
 
 export function getMerchantDomain(): string {
