@@ -18,8 +18,6 @@ import {
 } from "./util";
 import type {
   ConfigResponse,
-  CreateOrderResponse,
-  OrderPayload,
   ValidateMerchantParams,
   ApplepayType,
   ConfirmOrderParams,
@@ -33,57 +31,6 @@ import {
   DEFAULT_GQL_HEADERS,
 } from "./constants";
 import { logApplePayEvent } from "./logging";
-
-async function createOrder(
-  payload: OrderPayload
-): Promise<CreateOrderResponse> {
-  const basicAuth = btoa(`${getClientID()}`);
-  const partnerAttributionId = getPartnerAttributionID();
-
-  try {
-    const accessToken = await fetch(`${getPayPalAPIDomain()}/v1/oauth2/token`, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basicAuth}`,
-        "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
-      },
-      body: "grant_type=client_credentials",
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then(({ access_token }) => {
-        return access_token;
-      });
-
-    const res = await fetch(`${getPayPalAPIDomain()}/v2/checkout/orders`, {
-      method: "POST",
-      headers: {
-        ...DEFAULT_API_HEADERS,
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    }).catch((err) => {
-      throw err;
-    });
-
-    const { id, status } = await res.json();
-
-    return {
-      id,
-      status,
-    };
-  } catch (error) {
-    getLogger()
-      .error(FPTI_TRANSITION.APPLEPAY_CREATE_ORDER_ERROR)
-      .track({
-        [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.APPLEPAY_CREATE_ORDER_ERROR,
-        [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${error.message}) }`,
-      })
-      .flush();
-    throw error;
-  }
-}
 
 function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
   return fetch(`${getPayPalDomain()}/graphql?GetApplepayConfig`, {
@@ -341,7 +288,6 @@ function confirmOrder({
 
 export function Applepay(): ApplepayType {
   return {
-    createOrder,
     config,
     validateMerchant,
     confirmOrder,

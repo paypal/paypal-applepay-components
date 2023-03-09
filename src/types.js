@@ -32,11 +32,6 @@ export type GQLConfigResponse = {|
   supportedNetworks: $ReadOnlyArray<string>,
 |};
 
-export type CreateOrderResponse = {|
-  id: string,
-  status: string,
-|};
-
 export type ApplePaySession = {|
   displayName: string,
   domainName: string,
@@ -128,7 +123,6 @@ export type ValidateMerchantResponse = {|
 |};
 
 export type ApplepayType = {|
-  createOrder(OrderPayload): Promise<CreateOrderResponse>,
   config(): Promise<ConfigResponse | PayPalApplePayErrorType>,
   validateMerchant(
     ValidateMerchantParams

@@ -1,11 +1,6 @@
 /* @flow */
 
-import {
-  getMerchantDomain,
-  getCurrency,
-  getCreateOrderPayLoad,
-  mapGetConfigResponse,
-} from "../util";
+import { getMerchantDomain, getCurrency, mapGetConfigResponse } from "../util";
 
 global.window = Object.create(window);
 
@@ -41,67 +36,6 @@ describe("util", () => {
   describe("getCurrency", () => {
     it("Should return USD by default", () => {
       expect(getCurrency()).toBe("USD");
-    });
-  });
-
-  describe("getCreateOrderPayLoad", () => {
-    it("should create order with capture Intent and default payee Information", () => {
-      const requestPayLoad = {
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "0.99",
-            },
-          },
-        ],
-      };
-      expect(getCreateOrderPayLoad(requestPayLoad)).toStrictEqual({
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "0.99",
-            },
-            payee: {
-              merchant_id: "2V9L63AM2BYKC",
-            },
-          },
-        ],
-        payer: undefined,
-        application_context: undefined,
-      });
-    });
-
-    it("should create order with passed in information", () => {
-      const requestPayLoad = {
-        intent: "AUTHORIZE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "0.99",
-            },
-          },
-        ],
-      };
-      expect(getCreateOrderPayLoad(requestPayLoad)).toStrictEqual({
-        intent: "AUTHORIZE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "0.99",
-            },
-            payee: {
-              merchant_id: "2V9L63AM2BYKC",
-            },
-          },
-        ],
-        payer: undefined,
-        application_context: undefined,
-      });
     });
   });
 
