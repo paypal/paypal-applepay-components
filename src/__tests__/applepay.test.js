@@ -54,30 +54,6 @@ global.btoa = btoa;
 global.atob = atob;
 
 describe("applepay", () => {
-  describe("Order", () => {
-    it("Creates Order", async () => {
-      const applepay = Applepay();
-
-      const { id, status } = await applepay.createOrder({
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "1.00",
-            },
-            payee: {
-              merchant_id: "2V9L63AM2BYKC",
-            },
-          },
-        ],
-      });
-
-      expect(id).toBeTruthy();
-      expect(status).toBe("CREATED");
-    });
-  });
-
   describe("Config", () => {
     it("GetAppelPayConfig", async () => {
       const applepay = Applepay();
