@@ -20,22 +20,22 @@ jest.mock("@paypal/sdk-client/src", () => ({
   getLogger: () => ({
     info: () => ({
       track: () => ({
-        flush: () => ({}),
-      }),
+        flush: () => ({})
+      })
     }),
     error: () => ({
       track: () => ({
-        flush: () => ({}),
-      }),
-    }),
+        flush: () => ({})
+      })
+    })
   }),
-  getSDKQueryParam: (param) => {
+  getSDKQueryParam: param => {
     if (param === "currency") {
       return "USD";
     }
 
     return "";
-  },
+  }
 }));
 
 jest.mock("../util", () => {
@@ -45,7 +45,7 @@ jest.mock("../util", () => {
     __esModule: true,
     ...originalModule,
     getMerchantDomain: jest.fn(),
-    getPayPalHost: () => "paypal.com",
+    getPayPalHost: () => "paypal.com"
   };
 });
 
@@ -64,11 +64,7 @@ describe("applepay", () => {
         currencyCode: "USD",
         supportedNetworks: ["masterCard", "discover", "visa", "amex"],
         isEligible: true,
-        merchantCapabilities: [
-          "supports3DS",
-          "supportsCredit",
-          "supportsDebit",
-        ],
+        merchantCapabilities: ["supports3DS", "supportsCredit", "supportsDebit"]
       });
     });
   });
@@ -81,7 +77,7 @@ describe("applepay", () => {
     try {
       await applepay.validateMerchant({
         validationUrl:
-          "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession",
+          "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession"
       });
     } catch (err) {
       expect(err.name).toBe("PayPalApplePayError");
@@ -101,7 +97,7 @@ describe("applepay", () => {
       // eslint-disable-next-line flowtype/no-weak-types
       const response: any = await applepay.validateMerchant({
         validationUrl:
-          "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession",
+          "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession"
       });
 
       expect(response.merchantSession.displayName).toEqual("Test Store");
@@ -121,7 +117,7 @@ describe("applepay", () => {
       const response: any = await applepay.validateMerchant({
         validationUrl:
           "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession",
-        displayName: "Custom Business Name",
+        displayName: "Custom Business Name"
       });
 
       expect(response.merchantSession.displayName).toEqual(
