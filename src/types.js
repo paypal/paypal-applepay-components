@@ -6,14 +6,14 @@ export type OrderPayload = {|
   intent: string,
   purchase_units: $ReadOnlyArray<{|
     amount: {| currency_code: string, value: string |},
-    payee: {| merchant_id: string |}
-  |}>
+    payee: {| merchant_id: string |},
+  |}>,
 |};
 
 export type PayPalApplePayErrorType = {|
   name: string,
   message: string,
-  paypalDebugId: null | string
+  paypalDebugId: null | string,
 |};
 
 export type ConfigResponse = {|
@@ -22,14 +22,14 @@ export type ConfigResponse = {|
   merchantCountry: string,
   currencyCode: string,
   merchantCapabilities: $ReadOnlyArray<string>,
-  supportedNetworks: $ReadOnlyArray<string>
+  supportedNetworks: $ReadOnlyArray<string>,
 |};
 
 export type GQLConfigResponse = {|
   isEligible: boolean,
   merchantCountry: string,
   merchantCapabilities: $ReadOnlyArray<string>,
-  supportedNetworks: $ReadOnlyArray<string>
+  supportedNetworks: $ReadOnlyArray<string>,
 |};
 
 export type ApplePaySession = {|
@@ -43,7 +43,7 @@ export type ApplePaySession = {|
   operationalAnalyticsIdentifier: string,
   pspId: string,
   retries: number,
-  signature: string
+  signature: string,
 |};
 
 export type ApplePayPaymentContact = {|
@@ -60,7 +60,7 @@ export type ApplePayPaymentContact = {|
   subAdministrativeArea?: string,
   administrativeArea?: string,
   country?: string,
-  countryCode?: string
+  countryCode?: string,
 |};
 
 export type ApplePayPaymentMethodType =
@@ -81,7 +81,7 @@ export type ApplePayPaymentPass = {|
   primaryAccountNumberSuffix: string,
   deviceAccountIdentifier?: string,
   deviceAccountNumberSuffic?: string,
-  activationState: ApplePayPaymentPassActivationState
+  activationState: ApplePayPaymentPassActivationState,
 |};
 
 // https://developer.apple.com/documentation/apple_pay_on_the_web/applepaypaymentmethod
@@ -90,36 +90,36 @@ export type ApplePayPaymentMethod = {|
   network?: string,
   type?: ApplePayPaymentMethodType,
   paymentPass?: ApplePayPaymentPass,
-  billingContact?: ApplePayPaymentContact
+  billingContact?: ApplePayPaymentContact,
 |};
 
 export type ApplePayPaymentToken = {|
   paymentMethod: ApplePayPaymentMethod,
   transactionIdentifier?: string,
-  paymentData?: Object
+  paymentData?: Object,
 |};
 
 export type ApplePayPayment = {|
   token: ApplePayPaymentToken,
   billingContact?: ApplePayPaymentContact,
-  shippingContact?: ApplePayPaymentContact
+  shippingContact?: ApplePayPaymentContact,
 |};
 
 export type ConfirmOrderParams = {|
   orderId: string,
   token: ApplePayPaymentToken,
   billingContact?: ApplePayPaymentContact,
-  shippingContact?: ApplePayPaymentContact
+  shippingContact?: ApplePayPaymentContact,
 |};
 
 export type ValidateMerchantParams = {|
   validationUrl: string,
-  displayName?: string
+  displayName?: string,
 |};
 
 export type ValidateMerchantResponse = {|
   merchantSession: ApplePaySession,
-  paypalDebugId: null | string
+  paypalDebugId: null | string,
 |};
 
 export type ApplepayType = {|
@@ -127,5 +127,5 @@ export type ApplepayType = {|
   validateMerchant(
     ValidateMerchantParams
   ): Promise<ValidateMerchantResponse | PayPalApplePayErrorType>,
-  confirmOrder(ConfirmOrderParams): Promise<void | PayPalApplePayErrorType>
+  confirmOrder(ConfirmOrderParams): Promise<void | PayPalApplePayErrorType>,
 |};
