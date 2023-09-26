@@ -6,14 +6,14 @@ import {
   getLogger,
   getBuyerCountry,
   getPayPalDomain,
-  getPartnerAttributionID
+  getPartnerAttributionID,
 } from "@paypal/sdk-client/src";
 import { FPTI_KEY } from "@paypal/sdk-constants/src";
 
 import {
   getMerchantDomain,
   mapGetConfigResponse,
-  PayPalApplePayError
+  PayPalApplePayError,
 } from "./util";
 import type {
   ConfigResponse,
@@ -21,12 +21,12 @@ import type {
   ApplepayType,
   ConfirmOrderParams,
   PayPalApplePayErrorType,
-  ValidateMerchantResponse
+  ValidateMerchantResponse,
 } from "./types";
 import {
   FPTI_TRANSITION,
   FPTI_CUSTOM_KEY,
-  DEFAULT_GQL_HEADERS
+  DEFAULT_GQL_HEADERS,
 } from "./constants";
 import { logApplePayEvent } from "./logging";
 
@@ -34,7 +34,7 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
   return fetch(`${getPayPalDomain()}/graphql?GetApplepayConfig`, {
     method: "POST",
     headers: {
-      ...DEFAULT_GQL_HEADERS
+      ...DEFAULT_GQL_HEADERS,
     },
     body: JSON.stringify({
       query: `
@@ -57,11 +57,11 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
       variables: {
         buyerCountry: getBuyerCountry(),
         clientId: getClientID(),
-        merchantId: getMerchantID()
-      }
-    })
+        merchantId: getMerchantID(),
+      },
+    }),
   })
-    .then(res => {
+    .then((res) => {
       if (!res.ok) {
         const { headers } = res;
         throw new PayPalApplePayError(
@@ -84,12 +84,12 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
 
       return mapGetConfigResponse(data.applepayConfig);
     })
-    .catch(err => {
+    .catch((err) => {
       getLogger()
         .error(FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR)
         .track({
           [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.APPLEPAY_CONFIG_ERROR,
-          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`
+          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`,
         })
         .flush();
 
@@ -99,7 +99,7 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
 
 function validateMerchant({
   validationUrl,
-  displayName
+  displayName,
 }: ValidateMerchantParams): Promise<
   ValidateMerchantResponse | PayPalApplePayErrorType
 > {
@@ -108,7 +108,7 @@ function validateMerchant({
   return fetch(`${getPayPalDomain()}/graphql?GetApplePayMerchantSession`, {
     method: "POST",
     headers: {
-      ...DEFAULT_GQL_HEADERS
+      ...DEFAULT_GQL_HEADERS,
     },
     body: JSON.stringify({
       query: `
@@ -134,11 +134,11 @@ function validateMerchant({
         displayName,
         clientID: getClientID(),
         merchantID: getMerchantID(),
-        merchantDomain: getMerchantDomain()
-      }
-    })
+        merchantDomain: getMerchantDomain(),
+      },
+    }),
   })
-    .then(res => {
+    .then((res) => {
       if (!res.ok) {
         const { headers } = res;
         throw new PayPalApplePayError(
@@ -154,7 +154,7 @@ function validateMerchant({
         const error = {
           name: errors[0]?.name || "ERROR_VALIDATING_MERCHANT",
           fullDescription: errors[0]?.message ?? JSON.stringify(errors[0]),
-          paypalDebugId: extensions?.correlationId
+          paypalDebugId: extensions?.correlationId,
         };
 
         throw new PayPalApplePayError(
@@ -170,16 +170,16 @@ function validateMerchant({
         : data;
       return {
         merchantSession: JSON.parse(payload),
-        paypalDebugId: extensions?.correlationId
+        paypalDebugId: extensions?.correlationId,
       };
     })
-    .catch(err => {
+    .catch((err) => {
       getLogger()
         .error(FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR)
         .track({
           [FPTI_KEY.TRANSITION]:
             FPTI_TRANSITION.APPLEPAY_MERCHANT_VALIDATION_ERROR,
-          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`
+          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`,
         })
         .flush();
 
@@ -191,7 +191,7 @@ function confirmOrder({
   orderId,
   token,
   billingContact,
-  shippingContact
+  shippingContact,
 }: ConfirmOrderParams): Promise<void | PayPalApplePayErrorType> {
   logApplePayEvent("paymentauthorized");
 
@@ -210,7 +210,7 @@ function confirmOrder({
     method: "POST",
     headers: {
       ...DEFAULT_GQL_HEADERS,
-      "PayPal-Partner-Attribution-Id": partnerAttributionId || ""
+      "PayPal-Partner-Attribution-Id": partnerAttributionId || "",
     },
     body: JSON.stringify({
       query: `
@@ -237,17 +237,17 @@ function confirmOrder({
         shippingContact,
         clientID: getClientID(),
         orderID: orderId,
-        productFlow: "CUSTOM_DIGITAL_WALLET"
-      }
-    })
+        productFlow: "CUSTOM_DIGITAL_WALLET",
+      },
+    }),
   })
-    .then(res => {
+    .then((res) => {
       if (!res.ok) {
         const { headers } = res;
         const error = {
           name: "INTERNAL_SERVER_ERROR",
           fullDescription: "An internal server error has occurred",
-          paypalDebugId: headers.get("Paypal-Debug-Id")
+          paypalDebugId: headers.get("Paypal-Debug-Id"),
         };
 
         throw new PayPalApplePayError(
@@ -263,7 +263,7 @@ function confirmOrder({
         const error = {
           name: errors[0]?.name || "APPLEPAY_PAYMENT_ERROR",
           fullDescription: errors[0]?.message ?? JSON.stringify(errors[0]),
-          paypalDebugId: extensions?.correlationId
+          paypalDebugId: extensions?.correlationId,
         };
 
         throw new PayPalApplePayError(
@@ -274,12 +274,12 @@ function confirmOrder({
       }
       return data;
     })
-    .catch(err => {
+    .catch((err) => {
       getLogger()
         .error(FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR)
         .track({
           [FPTI_KEY.TRANSITION]: FPTI_TRANSITION.APPLEPAY_PAYMENT_ERROR,
-          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`
+          [FPTI_CUSTOM_KEY.ERR_DESC]: `Error: ${err.message}) }`,
         })
         .flush();
 
@@ -291,6 +291,6 @@ export function Applepay(): ApplepayType {
   return {
     config,
     validateMerchant,
-    confirmOrder
+    confirmOrder,
   };
 }

@@ -8,21 +8,21 @@ const url = "http://checkout.com";
 Object.defineProperty(window, "location", {
   value: {
     origin: url,
-    search: "?customDomain='testenv.qa.paypal.com'"
-  }
+    search: "?customDomain='testenv.qa.paypal.com'",
+  },
 });
 
 jest.mock("@paypal/sdk-client/src", () => ({
   getPayPalDomain: () => "https://www.sandbox.paypal.com",
   getMerchantID: () => "2V9L63AM2BYKC",
   getBuyerCountry: () => "US",
-  getSDKQueryParam: param => {
+  getSDKQueryParam: (param) => {
     if (param === "currency") {
       return "USD";
     }
 
     return "";
-  }
+  },
 }));
 
 describe("util", () => {
@@ -45,7 +45,11 @@ describe("util", () => {
         merchantCountry: "US",
         supportedNetworks: ["masterCard", "discover", "visa", "amex"],
         isEligible: true,
-        merchantCapabilities: ["supports3DS", "supportsCredit", "supportsDebit"]
+        merchantCapabilities: [
+          "supports3DS",
+          "supportsCredit",
+          "supportsDebit",
+        ],
       };
 
       expect(mapGetConfigResponse(requestPayLoad)).toStrictEqual({
@@ -54,7 +58,11 @@ describe("util", () => {
         currencyCode: "USD",
         supportedNetworks: ["masterCard", "discover", "visa", "amex"],
         isEligible: true,
-        merchantCapabilities: ["supports3DS", "supportsCredit", "supportsDebit"]
+        merchantCapabilities: [
+          "supports3DS",
+          "supportsCredit",
+          "supportsDebit",
+        ],
       });
     });
   });

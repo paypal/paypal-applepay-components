@@ -12,7 +12,7 @@ export function logApplePayEvent(event: string, payload: Object) {
     .info(`${FPTI_TRANSITION.APPLEPAY_EVENT}_${event}`, data)
     .track({
       [FPTI_KEY.TRANSITION]: `${FPTI_TRANSITION.APPLEPAY_EVENT}_${event}`,
-      [FPTI_CUSTOM_KEY.INFO_MSG]: JSON.stringify(data)
+      [FPTI_CUSTOM_KEY.INFO_MSG]: JSON.stringify(data),
     })
     .flush();
 }

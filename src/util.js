@@ -20,7 +20,7 @@ export function mapGetConfigResponse(
   return {
     ...applepayConfig,
     currencyCode: getCurrency(),
-    countryCode: applepayConfig.merchantCountry
+    countryCode: applepayConfig.merchantCountry,
   };
 }
 
