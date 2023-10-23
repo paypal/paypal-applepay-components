@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/paypal/paypal-applepay-components/compare/v1.5.0...v1.6.0) (2023-10-23)
+
+
+### Features
+
+* send product flow to approve payment mutation ([#13](https://github.com/paypal/paypal-applepay-components/issues/13)) ([75d4e93](https://github.com/paypal/paypal-applepay-components/commit/75d4e9311ca46a60e548ece06fa4a36f20363c1b))
+
 ## 1.5.0 (2023-02-22)
 
 
