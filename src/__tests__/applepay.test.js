@@ -12,8 +12,8 @@ import { getMerchantDomain } from "../util";
 jest.mock("@paypal/sdk-client/src", () => ({
   getPartnerAttributionID: () => "bn_code",
   getClientID: () =>
-    "AdVrVyh_UduEct9CWFHsaHRXKVxbnCDleEJdVOZdb52qSjrWkKDNd6E1CNvd5BvNrGSsXzgQ238dGgZ4",
-  getMerchantID: () => ["2V9L63AM2BYKC"],
+    "AULQUSZXzZoRWVCZRo6sRd78d6a3CFxrMB92LPBWhJInHA3R5Fx67ZYEy0fjMhL9NP429OFDGphvvn5W",
+  getMerchantID: () => ["LM7TUQJVSUPRQ"],
   getPayPalAPIDomain: () => "https://cors.api.sandbox.paypal.com",
   getPayPalDomain: () => "https://www.sandbox.paypal.com",
   getBuyerCountry: () => "US",
@@ -104,7 +104,7 @@ describe("applepay", () => {
           "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession",
       });
 
-      expect(response.merchantSession.displayName).toEqual("Custom Clothing");
+      expect(response.merchantSession.displayName).toEqual("Test Store");
       expect(response.merchantSession.signature).toEqual(expect.any(String));
       expect(response.merchantSession.nonce).toEqual(expect.any(String));
       expect(response.paypalDebugId).toEqual(expect.any(String));

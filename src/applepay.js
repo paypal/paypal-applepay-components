@@ -220,6 +220,7 @@ function confirmOrder({
                       $clientID : String!
                       $billingContact: ApplePayPaymentContact!
                       $shippingContact: ApplePayPaymentContact
+                      $productFlow: String
                     ) {
                       approveApplePayPayment(
                         token: $token
@@ -227,6 +228,7 @@ function confirmOrder({
                         clientID: $clientID
                         billingContact: $billingContact
                         shippingContact: $shippingContact
+                        productFlow: $productFlow
                       )
                     }`,
       variables: {
@@ -235,6 +237,7 @@ function confirmOrder({
         shippingContact,
         clientID: getClientID(),
         orderID: orderId,
+        productFlow: "CUSTOM_DIGITAL_WALLET",
       },
     }),
   })
