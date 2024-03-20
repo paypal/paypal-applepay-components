@@ -51,7 +51,8 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
                       merchantCountry,
                       supportedNetworks,
                       isEligible,
-                      merchantCapabilities
+                      merchantCapabilities,
+                      tokenNotificationURL
                     }
                   }`,
       variables: {

@@ -23,6 +23,7 @@ export type ConfigResponse = {|
   currencyCode: string,
   merchantCapabilities: $ReadOnlyArray<string>,
   supportedNetworks: $ReadOnlyArray<string>,
+  tokenNotificationURL: string,
 |};
 
 export type GQLConfigResponse = {|
@@ -30,6 +31,7 @@ export type GQLConfigResponse = {|
   merchantCountry: string,
   merchantCapabilities: $ReadOnlyArray<string>,
   supportedNetworks: $ReadOnlyArray<string>,
+  tokenNotificationURL: string,
 |};
 
 export type ApplePaySession = {|

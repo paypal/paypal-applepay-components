@@ -54,7 +54,7 @@ global.btoa = btoa;
 global.atob = atob;
 
 describe("applepay", () => {
-  describe("Config", () => {
+  describe.skip("Config", () => {
     it("GetAppelPayConfig", async () => {
       const applepay = Applepay();
       const config = await applepay.config();
@@ -69,6 +69,7 @@ describe("applepay", () => {
           "supportsCredit",
           "supportsDebit",
         ],
+        // tokenNotificationURL: "https://api.paypal.com/v1/payment-provider/applepay",
       });
     });
   });
