@@ -69,7 +69,8 @@ describe("applepay", () => {
           "supportsCredit",
           "supportsDebit",
         ],
-        tokenNotificationURL: "https://api.sandbox.paypal.com/v1/payment-provider/applepay",
+        tokenNotificationURL:
+          "https://api.sandbox.paypal.com/v1/payment-provider/applepay",
       });
     });
   });
