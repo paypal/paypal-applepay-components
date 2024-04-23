@@ -54,7 +54,7 @@ global.btoa = btoa;
 global.atob = atob;
 
 describe("applepay", () => {
-  describe.skip("Config", () => {
+  describe("Config", () => {
     it("GetAppelPayConfig", async () => {
       const applepay = Applepay();
       const config = await applepay.config();
