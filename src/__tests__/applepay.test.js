@@ -55,7 +55,7 @@ global.atob = atob;
 
 describe("applepay", () => {
   describe("Config", () => {
-    it.skip("GetAppelPayConfig", async () => {
+    it("GetAppelPayConfig", async () => {
       const applepay = Applepay();
       const config = await applepay.config();
       expect(config).toEqual({
@@ -87,7 +87,9 @@ describe("applepay", () => {
       });
     } catch (err) {
       expect(err.name).toBe("PayPalApplePayError");
-      expect(err.message.includes("NOT_ENABLED_FOR_APPLE_PAY")).toBe(true);
+      expect(
+        err.message.includes("APPLE_PAY_MERCHANT_SESSION_VALIDATION_ERROR")
+      ).toBe(true);
       expect(err.paypalDebugId).toEqual(expect.any(String));
     }
   });
