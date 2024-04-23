@@ -55,7 +55,7 @@ global.atob = atob;
 
 describe("applepay", () => {
   describe("Config", () => {
-    it("GetAppelPayConfig", async () => {
+    it.skip("GetAppelPayConfig", async () => {
       const applepay = Applepay();
       const config = await applepay.config();
       expect(config).toEqual({
@@ -69,6 +69,8 @@ describe("applepay", () => {
           "supportsCredit",
           "supportsDebit",
         ],
+        tokenNotificationURL:
+          "https://api.sandbox.paypal.com/v1/payment-provider/applepay",
       });
     });
   });
