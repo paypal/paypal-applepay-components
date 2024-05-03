@@ -12,8 +12,8 @@ import { getMerchantDomain } from "../util";
 jest.mock("@paypal/sdk-client/src", () => ({
   getPartnerAttributionID: () => "bn_code",
   getClientID: () =>
-    "AULQUSZXzZoRWVCZRo6sRd78d6a3CFxrMB92LPBWhJInHA3R5Fx67ZYEy0fjMhL9NP429OFDGphvvn5W",
-  getMerchantID: () => ["LM7TUQJVSUPRQ"],
+    "AeH0vEMSIJhmj8c9zEMii_Ftr_8Kvkhc72rSjW7Ri_vr3GorvmjWXxLBJnWDh-dpIpo_BH-S4fVqXec4",
+  getMerchantID: () => ["RZB8FGXVSK48S"],
   getPayPalAPIDomain: () => "https://cors.api.sandbox.paypal.com",
   getPayPalDomain: () => "https://www.sandbox.paypal.com",
   getBuyerCountry: () => "US",
@@ -99,7 +99,7 @@ describe("applepay", () => {
       const applepay = Applepay();
 
       getMerchantDomain.mockReturnValueOnce(
-        "sandbox-applepay-paypal-js-sdk.herokuapp.com"
+        "www.te-apm-test-tool.qa.paypal.com"
       );
 
       // eslint-disable-next-line flowtype/no-weak-types
@@ -118,7 +118,7 @@ describe("applepay", () => {
       const applepay = Applepay();
 
       getMerchantDomain.mockReturnValueOnce(
-        "sandbox-applepay-paypal-js-sdk.herokuapp.com"
+        "www.te-apm-test-tool.qa.paypal.com"
       );
 
       // eslint-disable-next-line flowtype/no-weak-types
