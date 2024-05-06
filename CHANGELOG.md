@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/paypal/paypal-applepay-components/compare/v1.6.0...v1.7.0) (2024-05-06)
+
+
+### Features
+
+* apple pay MTN ([fdbce09](https://github.com/paypal/paypal-applepay-components/commit/fdbce09988573c42c04280611ffc37011315f084))
+
+
+### Bug Fixes
+
+* tests ([b35e01a](https://github.com/paypal/paypal-applepay-components/commit/b35e01a6205e9bbd617b39d2bbfd975f1040fb4f))
+* updated SB client ID & doamin url for applepay tests ([#17](https://github.com/paypal/paypal-applepay-components/issues/17)) ([4f30e0b](https://github.com/paypal/paypal-applepay-components/commit/4f30e0b608a30859e9b431311e0a0a40c718f766))
+
 ## [1.6.0](https://github.com/paypal/paypal-applepay-components/compare/v1.5.0...v1.6.0) (2023-10-23)
 
 
