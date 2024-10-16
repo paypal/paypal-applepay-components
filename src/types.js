@@ -117,6 +117,7 @@ export type ConfirmOrderParams = {|
 export type ValidateMerchantParams = {|
   validationUrl: string,
   displayName?: string,
+  domainName?: string,
 |};
 
 export type ValidateMerchantResponse = {|
