@@ -101,10 +101,15 @@ function config(): Promise<ConfigResponse | PayPalApplePayErrorType> {
 function validateMerchant({
   validationUrl,
   displayName,
+  domainName,
 }: ValidateMerchantParams): Promise<
   ValidateMerchantResponse | PayPalApplePayErrorType
 > {
-  logApplePayEvent("validatemerchant", { validationUrl, displayName });
+  logApplePayEvent("validatemerchant", {
+    validationUrl,
+    displayName,
+    domainName,
+  });
 
   return fetch(`${getPayPalDomain()}/graphql?GetApplePayMerchantSession`, {
     method: "POST",
@@ -135,7 +140,7 @@ function validateMerchant({
         displayName,
         clientID: getClientID(),
         merchantID: getMerchantID(),
-        merchantDomain: getMerchantDomain(),
+        merchantDomain: domainName || getMerchantDomain(),
       },
     }),
   })

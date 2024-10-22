@@ -135,5 +135,29 @@ describe("applepay", () => {
       expect(response.merchantSession.nonce).toEqual(expect.any(String));
       expect(response.paypalDebugId).toEqual(expect.any(String));
     });
+
+    it("should accept an optional custom domain for the apple pay button", async () => {
+      const applepay = Applepay();
+
+      getMerchantDomain.mockReturnValueOnce("www.invalid-domain.com");
+
+      // eslint-disable-next-line flowtype/no-weak-types
+      const response: any = await applepay.validateMerchant({
+        validationUrl:
+          "https://apple-pay-gateway-cert.apple.com/paymentservices/startSession",
+        displayName: "Custom Business Name",
+        domainName: "www.te-apm-test-tool.qa.paypal.com",
+      });
+
+      expect(response.merchantSession.displayName).toEqual(
+        "Custom Business Name"
+      );
+      expect(response.merchantSession.domainName).toEqual(
+        "www.te-apm-test-tool.qa.paypal.com"
+      );
+      expect(response.merchantSession.signature).toEqual(expect.any(String));
+      expect(response.merchantSession.nonce).toEqual(expect.any(String));
+      expect(response.paypalDebugId).toEqual(expect.any(String));
+    });
   });
 });
