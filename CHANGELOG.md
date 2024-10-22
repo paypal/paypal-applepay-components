@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/paypal/paypal-applepay-components/compare/v1.7.0...v1.8.0) (2024-10-22)
+
+
+### Features
+
+* custom domain from merchant ([#18](https://github.com/paypal/paypal-applepay-components/issues/18)) ([6cae86f](https://github.com/paypal/paypal-applepay-components/commit/6cae86fc8ab9479f3ef831749f39fdf7b4d9c2d1))
+
 ## [1.7.0](https://github.com/paypal/paypal-applepay-components/compare/v1.6.0...v1.7.0) (2024-05-06)
 
 
