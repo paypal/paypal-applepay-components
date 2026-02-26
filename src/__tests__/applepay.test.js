@@ -13,7 +13,7 @@ jest.mock("@paypal/sdk-client/src", () => ({
   getPartnerAttributionID: () => "bn_code",
   getClientID: () =>
     "AeH0vEMSIJhmj8c9zEMii_Ftr_8Kvkhc72rSjW7Ri_vr3GorvmjWXxLBJnWDh-dpIpo_BH-S4fVqXec4",
-  getMerchantID: () => ["RZB8FGXVSK48S"],
+  getMerchantID: () => ["92EJRDTEQBCGC"],
   getPayPalAPIDomain: () => "https://cors.api.sandbox.paypal.com",
   getPayPalDomain: () => "https://www.sandbox.paypal.com",
   getBuyerCountry: () => "US",
