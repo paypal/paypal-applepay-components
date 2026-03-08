@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/paypal/paypal-applepay-components/compare/v1.8.0...v1.8.1) (2026-03-08)
+
+
+### Bug Fixes
+
+* add disable-set-cookie: true header to gql ([ddb3ab1](https://github.com/paypal/paypal-applepay-components/commit/ddb3ab1928397d72822b14aed050831da5ae0765))
+* mock tests ([ce6fcfe](https://github.com/paypal/paypal-applepay-components/commit/ce6fcfefc999b71ed8dcb485c88ddfdb4c67b25a))
+* update test merchantID ([836b748](https://github.com/paypal/paypal-applepay-components/commit/836b74811851ca2b3ac7defb54d61a6eb9d0c1c9))
+
 ## [1.8.0](https://github.com/paypal/paypal-applepay-components/compare/v1.7.0...v1.8.0) (2024-10-22)
 
 
